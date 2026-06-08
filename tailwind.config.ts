@@ -6,9 +6,14 @@ const config: Config = {
     extend: {
       colors: {
         accent: {
-          DEFAULT: '#FF6B35',
-          light: '#FF8C5A',
-          dark: '#E55A24',
+          DEFAULT: '#03C75A',
+          light: '#00E06B',
+          dark: '#02A34A',
+        },
+        point: {
+          DEFAULT: '#7C3AED',
+          light: '#9D5CF0',
+          dark: '#6020C8',
         },
       },
       fontFamily: {

@@ -6,23 +6,25 @@ import {
   PERSONAL_COLOR_COLORS,
   ACTIVITY_LABELS,
   ACTIVITY_ALLOWED_STYLES,
+  ACTIVITY_DETAIL,
   GENDER_LABELS,
-  getTempGuide,
+  buildWeatherGuide,
 } from '@/lib/constants'
-import type { WardrobeItem, Activity, PersonalColor, WeatherData } from '@/types'
+import type { WardrobeItem, Activity, Category, PersonalColor, WeatherData, Season } from '@/types'
 
 const client = new Anthropic()
 
 function filterByWeather(items: WardrobeItem[], feelsLike: number): WardrobeItem[] {
-  const seasonFilter: WardrobeItem['season'][] = ['all_season']
-  if (feelsLike >= 17) seasonFilter.push('spring_summer')
-  else seasonFilter.push('autumn_winter')
-  return items.filter(item => seasonFilter.includes(item.season))
+  let allowed: Season[]
+  if (feelsLike >= 23)      allowed = ['summer']
+  else if (feelsLike >= 10) allowed = ['spring_autumn']
+  else                      allowed = ['winter']
+  return items.filter(item => allowed.includes(item.season))
 }
 
-function filterByActivity(items: WardrobeItem[], activity: Activity): WardrobeItem[] {
-  const allowed = ACTIVITY_ALLOWED_STYLES[activity]
-  return items.filter(item => allowed.includes(item.style))
+function filterByStyle(items: WardrobeItem[], activity: Activity): WardrobeItem[] {
+  const styles = ACTIVITY_ALLOWED_STYLES[activity]
+  return items.filter(item => (styles as string[]).includes(item.style))
 }
 
 function sortByPersonalColor(items: WardrobeItem[], personalColor: PersonalColor): WardrobeItem[] {
@@ -46,8 +48,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
   }
 
-  const body: { weather: WeatherData; activity: Activity } = await request.json()
+  const body: { weather: WeatherData; activity: Activity; selectedItems?: Category[] } = await request.json()
   const { weather, activity } = body
+  const selectedItems: Category[] = body.selectedItems ?? ['top', 'bottom', 'outer', 'shoes', 'accessory']
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -66,58 +69,79 @@ export async function POST(request: NextRequest) {
     .is('deleted_at', null)
 
   if (!allItems || allItems.length === 0) {
-    return NextResponse.json(
-      { error: '등록된 옷이 없습니다. 먼저 옷을 등록해주세요.' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '옷장이 비어 있어요. 옷을 등록해주세요.' }, { status: 400 })
   }
 
-  let filtered = allItems as WardrobeItem[]
+  // Compute which selected categories are completely absent from the wardrobe (unregistered)
+  const allWardrobeCategories = new Set((allItems as WardrobeItem[]).map(i => i.category))
+  const missingCategories: Category[] = selectedItems.filter(cat => !allWardrobeCategories.has(cat))
 
-  if (activity !== 'homewear') {
-    filtered = filterByWeather(filtered, weather.feels_like)
+  // 1: weather filter
+  const weatherFiltered = filterByWeather(allItems as WardrobeItem[], weather.feels_like)
+
+  // 2: style filter (fallback to all weather items if no style match)
+  let styleFiltered = filterByStyle(weatherFiltered, activity)
+  const usedFallback = styleFiltered.length === 0
+  if (usedFallback) styleFiltered = weatherFiltered
+
+  if (styleFiltered.length === 0) {
+    return NextResponse.json({ error: '현재 날씨에 맞는 옷이 부족합니다.' }, { status: 400 })
   }
 
-  filtered = filterByActivity(filtered, activity)
-  filtered = sortByPersonalColor(filtered, profile.personal_color)
+  // 3: sort by personal color
+  const sorted = sortByPersonalColor(styleFiltered, profile.personal_color as PersonalColor)
 
-  const topItems = filtered.slice(0, 20)
+  // 4: filter to selected categories (top 20 for Claude)
+  const topItems = sorted
+    .filter(item => selectedItems.includes(item.category))
+    .slice(0, 20)
 
+  // Case: all selected categories have no usable items — return without calling Claude
   if (topItems.length === 0) {
-    return NextResponse.json(
-      { error: '조건에 맞는 옷이 없습니다. 옷장을 더 채워주세요.' },
-      { status: 400 }
-    )
+    return NextResponse.json({
+      top: null,
+      bottom: null,
+      outer: null,
+      shoes: null,
+      accessories: [],
+      reason: '',
+      tips: [],
+      usedFallback,
+      missingCategories,
+      allMissing: true,
+    })
   }
+
+  const personalColorLabel = `${PERSONAL_COLOR_LABELS[profile.personal_color as PersonalColor]} (${PERSONAL_COLOR_COLORS[profile.personal_color as PersonalColor].slice(0, 4).join(', ')} 계열)`
+  const likedStyles: string[] = profile.liked_styles ?? []
+  const dislikedStyles: string[] = profile.disliked_styles ?? []
 
   const wardrobeText = topItems
-    .map(
-      (item, i) =>
-        `${i + 1}. [${item.category}] ${item.colors.join('+')} | ${item.style} | ${item.season}${item.description ? ` | ${item.description}` : ''}`
+    .map((item, i) =>
+      `${i + 1}. [${item.category}] ${item.colors.join('+')} | ${item.style} | ${item.season}${item.description ? ` | ${item.description}` : ''}`
     )
     .join('\n')
 
-  const personalColorLabel = `${PERSONAL_COLOR_LABELS[profile.personal_color as PersonalColor]} (${PERSONAL_COLOR_COLORS[profile.personal_color as PersonalColor].slice(0, 4).join(', ')} 계열)`
+  const stylePrefsSection = (likedStyles.length > 0 || dislikedStyles.length > 0)
+    ? `[스타일 선호도]\n${likedStyles.length > 0 ? `- 좋아하는 스타일: ${likedStyles.join(', ')}` : ''}\n${dislikedStyles.length > 0 ? `- 절대 피해야 할 스타일: ${dislikedStyles.join(', ')}` : ''}\n\n`
+    : ''
 
-  const isHomewear = activity === 'homewear'
+  const selectedCatsKo = selectedItems.map(c => ({
+    top: '상의', bottom: '하의', outer: '아우터', shoes: '신발', accessory: '액세서리'
+  }[c])).join(', ')
 
-  const weatherSection = isHomewear
-    ? ''
-    : `[날씨 정보]
+  const prompt = `당신은 패션 스타일리스트입니다.
+
+[날씨 정보]
 - 기온: ${weather.temp}°C (체감 ${weather.feels_like}°C)
 - 날씨: ${weather.weather_desc}
 - 습도: ${weather.humidity}%
 - 풍속: ${weather.wind_speed}m/s
 
-[기온별 가이드라인]
-${getTempGuide(weather.feels_like)}
+${buildWeatherGuide(weather.feels_like, weather.weather_condition, weather.wind_speed)}
 
-`
-
-  const prompt = `당신은 패션 스타일리스트입니다.
-
-${weatherSection}[오늘 활동]
-${ACTIVITY_LABELS[activity]}
+[오늘 활동]
+${ACTIVITY_LABELS[activity]} — ${ACTIVITY_DETAIL[activity]}${usedFallback ? '\n(허용 스타일이 없어 비슷한 스타일로 대체)' : ''}
 
 [퍼스널 컬러]
 ${personalColorLabel}
@@ -125,10 +149,13 @@ ${personalColorLabel}
 [성별]
 ${GENDER_LABELS[profile.gender as keyof typeof GENDER_LABELS]}
 
+${stylePrefsSection}[추천 요청 아이템: ${selectedCatsKo}]
+
 [내 옷장 (${topItems.length}개)]
 ${wardrobeText}
 
-${isHomewear ? '홈웨어이므로 편안함을 최우선으로 하여 ' : '위 정보를 바탕으로 '}최적의 코디를 추천해주세요.
+위 정보를 바탕으로 최적의 코디를 추천해주세요. 절대 피해야 할 스타일은 반드시 제외하세요.
+요청된 아이템 카테고리만 추천하고, 옷장에 없는 카테고리는 null로 반환하세요.
 JSON만 출력하세요 (코드블록 없이):
 
 {
@@ -164,6 +191,9 @@ JSON만 출력하세요 (코드블록 없이):
         .filter(Boolean),
       reason: result.reason ?? '',
       tips: result.tips ?? [],
+      usedFallback,
+      missingCategories,
+      allMissing: false,
     })
   } catch {
     return NextResponse.json({ error: '추천 생성에 실패했습니다' }, { status: 500 })

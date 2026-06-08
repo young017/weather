@@ -4,8 +4,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const lat = searchParams.get('lat')
   const lon = searchParams.get('lon')
+  const city = searchParams.get('city')
 
-  if (!lat || !lon) {
+  if (!lat && !lon && !city) {
     return NextResponse.json({ error: '위치 정보가 필요합니다' }, { status: 400 })
   }
 
@@ -14,8 +15,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'API 키가 설정되지 않았습니다' }, { status: 500 })
   }
 
+  const query = city
+    ? `q=${encodeURIComponent(city)}`
+    : `lat=${lat}&lon=${lon}`
+
   const res = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=kr`,
+    `https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=kr`,
     { next: { revalidate: 600 } }
   )
 
@@ -30,6 +35,7 @@ export async function GET(request: NextRequest) {
     feels_like: Math.round(data.main.feels_like),
     weather_desc: data.weather[0].description,
     weather_icon: data.weather[0].icon,
+    weather_condition: data.weather[0].main,
     humidity: data.main.humidity,
     wind_speed: data.wind.speed,
     city: data.name,

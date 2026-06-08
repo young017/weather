@@ -1,14 +1,16 @@
 export type PersonalColor = 'spring_warm' | 'summer_cool' | 'autumn_warm' | 'winter_cool'
 export type Gender = 'male' | 'female' | 'neutral'
 export type Category = 'top' | 'bottom' | 'outer' | 'shoes' | 'accessory'
-export type Style = 'casual' | 'formal' | 'sporty' | 'street' | 'minimal'
-export type Season = 'spring_summer' | 'autumn_winter' | 'all_season'
-export type Activity = 'formal' | 'office' | 'daily' | 'active' | 'nightout' | 'homewear'
+export type Style = 'casual' | 'formal' | 'sporty' | 'street' | 'minimal' | 'vintage' | 'chic' | 'girly' | 'boyish' | 'classic' | 'romantic' | 'preppy'
+export type Season = 'summer' | 'spring_autumn' | 'winter'
+export type Activity = 'daily' | 'office' | 'formal' | 'active' | 'date' | 'nightout'
 
 export interface Profile {
   id: string
   personal_color: PersonalColor
   gender: Gender
+  liked_styles: string[]
+  disliked_styles: string[]
   created_at: string
 }
 
@@ -31,6 +33,7 @@ export interface WeatherData {
   feels_like: number
   weather_desc: string
   weather_icon: string
+  weather_condition: string
   humidity: number
   wind_speed: number
   city: string
@@ -53,4 +56,7 @@ export interface Recommendation {
   accessories: WardrobeItem[]
   reason: string
   tips: string[]
+  usedFallback: boolean
+  missingCategories: Category[]
+  allMissing: boolean
 }

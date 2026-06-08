@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
 {
   "category": "top|bottom|outer|shoes|accessory",
   "colors": ["주요색상1", "주요색상2"],
-  "style": "casual|formal|sporty|street|minimal",
+  "style": "casual|minimal|street|sporty|formal|vintage|chic|girly|boyish|classic|romantic|preppy",
   "material": "소재명 또는 null",
-  "season": "spring_summer|autumn_winter|all_season",
+  "season": "summer|spring_autumn|winter",
   "description": "한 줄 설명 (예: 네이비 오버핏 트렌치코트)"
 }`,
           },

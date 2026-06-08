@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import type { WardrobeItem, Category } from '@/types'
 import { CATEGORY_LABELS, SEASON_LABELS, STYLE_LABELS } from '@/lib/constants'
+import { TopNav } from '@/components/TopNav'
 
 const CATEGORY_FILTERS: Array<{ value: Category | 'all'; label: string }> = [
   { value: 'all', label: '전체' },
@@ -46,29 +47,31 @@ export default function WardrobePage() {
   const filtered = filter === 'all' ? items : items.filter(i => i.category === filter)
 
   return (
-    <div className="page-container pb-24">
-      <header className="page-header flex items-center justify-between">
+    <div className="page-container">
+      <TopNav />
+
+      <div className="px-12 pt-8 pb-4 border-b border-gray-200 flex items-center justify-between">
         <div>
-          <h1 className="font-bold text-gray-900">내 옷장</h1>
-          <p className="text-xs text-gray-400">{items.length}개 등록됨</p>
+          <h1 className="font-black text-black text-3xl">내 옷장</h1>
+          <p className="text-base text-[#333333] font-normal mt-1">{items.length}개 등록됨</p>
         </div>
         <button
           onClick={() => router.push('/wardrobe/add')}
-          className="w-9 h-9 bg-accent rounded-full flex items-center justify-center text-white text-xl font-light shadow-md active:scale-95 transition-transform"
+          className="px-6 py-3 bg-accent text-white text-base font-bold rounded hover:bg-accent-dark transition-colors active:scale-95"
         >
-          +
+          + 옷 추가
         </button>
-      </header>
+      </div>
 
-      <div className="flex gap-2 px-4 pt-3 pb-1 overflow-x-auto scrollbar-hide">
+      <div className="flex gap-3 px-12 pt-5 pb-3">
         {CATEGORY_FILTERS.map(({ value, label }) => (
           <button
             key={value}
             onClick={() => setFilter(value)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors
+            className={`px-4 py-2 rounded text-sm font-bold transition-colors
               ${filter === value
-                ? 'bg-accent text-white'
-                : 'bg-white text-gray-600 border border-gray-200'
+                ? 'bg-black text-white'
+                : 'bg-white text-black border-2 border-gray-200 hover:border-black'
               }`}
           >
             {label}
@@ -76,82 +79,61 @@ export default function WardrobePage() {
         ))}
       </div>
 
-      {loading ? (
-        <div className="grid grid-cols-2 gap-3 px-4 mt-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="aspect-square rounded-2xl bg-gray-100 animate-pulse" />
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center py-16 px-8">
-          <div className="text-5xl mb-4">👗</div>
-          <p className="font-semibold text-gray-700 mb-1">
-            {filter === 'all' ? '아직 등록된 옷이 없어요' : `등록된 ${CATEGORY_LABELS[filter as Category]}이 없어요`}
-          </p>
-          <p className="text-sm text-gray-400 mb-6">옷 사진을 찍어서 옷장을 채워보세요</p>
-          <button
-            className="btn-primary"
-            style={{ width: 'auto', padding: '12px 28px' }}
-            onClick={() => router.push('/wardrobe/add')}
-          >
-            옷 추가하기
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 px-4 mt-3">
-          {filtered.map(item => (
-            <div key={item.id} className="relative group">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 relative">
-                <Image
-                  src={item.image_url}
-                  alt={item.description ?? item.category}
-                  fill
-                  className="object-cover"
-                />
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  disabled={deletingId === item.id}
-                  className="absolute top-2 right-2 w-7 h-7 bg-black/50 rounded-full text-white text-xs
-                             opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="mt-1.5 px-0.5">
-                <p className="text-xs font-medium text-gray-800 truncate">
-                  {item.description ?? item.colors.join(', ')}
-                </p>
-                <div className="flex gap-1 mt-0.5">
-                  <span className="text-[10px] text-gray-400">{STYLE_LABELS[item.style]}</span>
-                  <span className="text-[10px] text-gray-300">·</span>
-                  <span className="text-[10px] text-gray-400">{SEASON_LABELS[item.season]}</span>
+      <main className="flex-1 px-12 py-4">
+        {loading ? (
+          <div className="grid grid-cols-5 gap-4">
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="aspect-square rounded bg-gray-100 animate-pulse" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-24">
+            <p className="font-extrabold text-black text-2xl mb-3">
+              {filter === 'all' ? '아직 등록된 옷이 없어요' : `등록된 ${CATEGORY_LABELS[filter as Category]}이 없어요`}
+            </p>
+            <p className="text-base text-[#333333] font-normal mb-10">옷 사진을 찍어서 옷장을 채워보세요</p>
+            <button
+              className="bg-accent text-white font-bold text-base rounded px-10 py-4 hover:bg-accent-dark transition-colors active:scale-95"
+              onClick={() => router.push('/wardrobe/add')}
+            >
+              옷 추가하기
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-5 gap-4">
+            {filtered.map(item => (
+              <div key={item.id} className="relative group">
+                <div className="aspect-square rounded overflow-hidden bg-gray-100 relative border border-gray-200">
+                  <Image
+                    src={item.image_url}
+                    alt={item.description ?? item.category}
+                    fill
+                    className="object-cover"
+                  />
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    disabled={deletingId === item.id}
+                    className="absolute top-2 right-2 w-8 h-8 bg-black/70 rounded text-white text-sm
+                               opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="mt-2 px-0.5">
+                  <p className="text-sm font-bold text-black truncate">
+                    {item.description ?? item.colors.join(', ')}
+                  </p>
+                  <div className="flex gap-1 mt-0.5">
+                    <span className="text-xs text-[#333333] font-normal">{STYLE_LABELS[item.style]}</span>
+                    <span className="text-xs text-gray-300">·</span>
+                    <span className="text-xs text-[#333333] font-normal">{SEASON_LABELS[item.season]}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md border-t border-gray-100 bg-white flex">
-        <button
-          className="flex-1 py-3 flex flex-col items-center gap-0.5 text-gray-400"
-          onClick={() => router.push('/')}
-        >
-          <span className="text-xl">🏠</span>
-          <span className="text-[10px] font-medium">홈</span>
-        </button>
-        <button className="flex-1 py-3 flex flex-col items-center gap-0.5 text-accent">
-          <span className="text-xl">👗</span>
-          <span className="text-[10px] font-medium">내 옷장</span>
-        </button>
-        <button
-          className="flex-1 py-3 flex flex-col items-center gap-0.5 text-gray-400"
-          onClick={() => router.push('/settings')}
-        >
-          <span className="text-xl">⚙️</span>
-          <span className="text-[10px] font-medium">설정</span>
-        </button>
-      </nav>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   )
 }

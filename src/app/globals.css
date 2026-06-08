@@ -4,35 +4,41 @@
 
 @layer base {
   html {
+    font-size: 18px;
     -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-white text-black antialiased;
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply w-full py-4 rounded-2xl bg-accent text-white font-semibold text-base
+    @apply w-full py-4 rounded bg-accent text-white font-bold text-base
            active:scale-95 transition-transform duration-100 disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply w-full py-4 rounded-2xl bg-white border border-gray-200 text-gray-700 font-semibold text-base
+    @apply w-full py-4 rounded bg-white border-2 border-gray-200 text-black font-bold text-base
            active:scale-95 transition-transform duration-100;
   }
 
+  .btn-point {
+    @apply w-full py-4 rounded bg-point text-white font-bold text-base
+           active:scale-95 transition-transform duration-100 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-4;
+    @apply bg-white rounded border border-gray-200 p-6;
   }
 
   .page-container {
-    @apply max-w-md mx-auto min-h-screen flex flex-col;
+    @apply min-h-screen flex flex-col w-full bg-white;
   }
 
   .page-header {
-    @apply sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-gray-100 px-4 py-3;
+    @apply sticky top-0 z-10 bg-white border-b-2 border-black px-12 py-0 flex items-center;
   }
 }

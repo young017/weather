@@ -8,11 +8,14 @@ import {
   PERSONAL_COLOR_DESCRIPTIONS,
   PERSONAL_COLOR_SWATCHES,
   GENDER_LABELS,
+  STYLE_KEYWORDS,
 } from '@/lib/constants'
+import { TopNav } from '@/components/TopNav'
 import type { PersonalColor, Gender, Profile } from '@/types'
 
 const PERSONAL_COLORS: PersonalColor[] = ['spring_warm', 'summer_cool', 'autumn_warm', 'winter_cool']
 const GENDERS: Gender[] = ['male', 'female', 'neutral']
+const MAX_STYLE_PICKS = 3
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -23,6 +26,8 @@ export default function SettingsPage() {
 
   const [personalColor, setPersonalColor] = useState<PersonalColor | null>(null)
   const [gender, setGender] = useState<Gender | null>(null)
+  const [likedStyles, setLikedStyles] = useState<string[]>([])
+  const [dislikedStyles, setDislikedStyles] = useState<string[]>([])
 
   useEffect(() => {
     const load = async () => {
@@ -30,21 +35,32 @@ export default function SettingsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/onboarding'); return }
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
+      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (data) {
         setProfile(data)
         setPersonalColor(data.personal_color)
         setGender(data.gender)
+        setLikedStyles(data.liked_styles ?? [])
+        setDislikedStyles(data.disliked_styles ?? [])
       }
       setLoading(false)
     }
     load()
   }, [router])
+
+  const toggleStyle = (
+    id: string,
+    selected: string[],
+    setSelected: (s: string[]) => void,
+    excluded: string[]
+  ) => {
+    if (excluded.includes(id)) return
+    if (selected.includes(id)) {
+      setSelected(selected.filter(s => s !== id))
+    } else if (selected.length < MAX_STYLE_PICKS) {
+      setSelected([...selected, id])
+    }
+  }
 
   const handleSave = async () => {
     if (!personalColor || !gender) return
@@ -54,10 +70,12 @@ export default function SettingsPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setSaving(false); return }
 
-    await supabase
-      .from('profiles')
-      .update({ personal_color: personalColor, gender })
-      .eq('id', user.id)
+    await supabase.from('profiles').update({
+      personal_color: personalColor,
+      gender,
+      liked_styles: likedStyles,
+      disliked_styles: dislikedStyles,
+    }).eq('id', user.id)
 
     setSaved(true)
     setSaving(false)
@@ -67,106 +85,152 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="page-container items-center justify-center">
-        <div className="text-3xl animate-bounce">⚙️</div>
+        <p className="text-2xl font-black text-black animate-pulse">몇 도야 ?</p>
       </div>
     )
   }
 
   const hasChanged =
-    personalColor !== profile?.personal_color || gender !== profile?.gender
+    personalColor !== profile?.personal_color ||
+    gender !== profile?.gender ||
+    JSON.stringify(likedStyles) !== JSON.stringify(profile?.liked_styles ?? []) ||
+    JSON.stringify(dislikedStyles) !== JSON.stringify(profile?.disliked_styles ?? [])
 
   return (
-    <div className="page-container pb-24">
-      <header className="page-header flex items-center gap-3">
-        <button onClick={() => router.push('/')} className="text-gray-500 text-lg p-1">←</button>
-        <h1 className="font-bold text-gray-900">설정</h1>
-      </header>
+    <div className="page-container">
+      <TopNav />
 
-      <div className="px-4 mt-4 space-y-6">
-        <div>
-          <h2 className="text-sm font-semibold text-gray-500 mb-3">퍼스널 컬러</h2>
-          <div className="space-y-2">
-            {PERSONAL_COLORS.map(pc => (
+      <main className="flex-1 px-12 py-10">
+        <div className="grid grid-cols-2 gap-16">
+
+          {/* LEFT: Personal Color + Gender */}
+          <div className="space-y-10">
+            <div>
+              <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-5">퍼스널 컬러</h2>
+              <div className="grid grid-cols-2 gap-3">
+                {PERSONAL_COLORS.map(pc => (
+                  <button
+                    key={pc}
+                    onClick={() => setPersonalColor(pc)}
+                    className={`flex flex-col gap-3 p-5 rounded border-2 text-left transition-all duration-150 hover:border-accent
+                      ${personalColor === pc ? 'border-accent bg-white' : 'border-gray-200 bg-white'}`}
+                  >
+                    <div className="flex gap-1.5">
+                      {PERSONAL_COLOR_SWATCHES[pc].map((color, i) => (
+                        <div key={i} className="w-6 h-6 rounded-full border border-white shadow-sm" style={{ backgroundColor: color }} />
+                      ))}
+                    </div>
+                    <div>
+                      <p className={`text-base font-extrabold ${personalColor === pc ? 'text-accent' : 'text-black'}`}>
+                        {PERSONAL_COLOR_LABELS[pc]}
+                      </p>
+                      <p className="text-sm text-[#333333] font-normal mt-0.5">{PERSONAL_COLOR_DESCRIPTIONS[pc]}</p>
+                    </div>
+                    {personalColor === pc && <span className="text-accent font-black text-sm self-end">✓</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-5">성별</h2>
+              <div className="flex gap-3">
+                {GENDERS.map(g => (
+                  <button
+                    key={g}
+                    onClick={() => setGender(g)}
+                    className={`flex-1 py-4 rounded border-2 font-extrabold text-base transition-all hover:border-accent
+                      ${gender === g ? 'border-accent text-accent bg-white' : 'border-gray-200 bg-white text-black'}`}
+                  >
+                    {GENDER_LABELS[g]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t-2 border-gray-200">
               <button
-                key={pc}
-                onClick={() => setPersonalColor(pc)}
-                className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 text-left transition-all duration-150 active:scale-[0.98]
-                  ${personalColor === pc
-                    ? 'border-accent bg-orange-50'
-                    : 'border-gray-100 bg-white'
-                  }`}
+                onClick={async () => {
+                  const supabase = createClient()
+                  await supabase.auth.signOut()
+                  router.replace('/onboarding')
+                }}
+                className="w-full py-4 text-base text-point font-extrabold rounded border-2 border-point hover:bg-point hover:text-white transition-colors"
               >
-                <div className="flex gap-1">
-                  {PERSONAL_COLOR_SWATCHES[pc].map((color, i) => (
-                    <div
-                      key={i}
-                      className="w-5 h-5 rounded-full border border-white shadow-sm"
-                      style={{ backgroundColor: color }}
-                    />
-                  ))}
-                </div>
-                <div className="flex-1">
-                  <p className={`text-sm font-semibold ${personalColor === pc ? 'text-accent' : 'text-gray-800'}`}>
-                    {PERSONAL_COLOR_LABELS[pc]}
-                  </p>
-                  <p className="text-xs text-gray-400">{PERSONAL_COLOR_DESCRIPTIONS[pc]}</p>
-                </div>
-                {personalColor === pc && <span className="text-accent">✓</span>}
+                로그아웃
               </button>
-            ))}
+            </div>
           </div>
-        </div>
 
-        <div>
-          <h2 className="text-sm font-semibold text-gray-500 mb-3">성별</h2>
-          <div className="flex gap-2">
-            {GENDERS.map(g => (
-              <button
-                key={g}
-                onClick={() => setGender(g)}
-                className={`flex-1 py-3 rounded-2xl border-2 font-semibold text-sm transition-all active:scale-95
-                  ${gender === g
-                    ? 'border-accent bg-orange-50 text-accent'
-                    : 'border-gray-100 bg-white text-gray-700'
-                  }`}
-              >
-                {GENDER_LABELS[g]}
+          {/* RIGHT: Liked + Disliked styles + Save */}
+          <div className="space-y-10">
+            <div>
+              <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-1">좋아하는 스타일</h2>
+              <p className="text-sm text-[#333333] font-normal mb-4">
+                최대 3개
+                <span className={`ml-2 font-extrabold ${likedStyles.length === MAX_STYLE_PICKS ? 'text-accent' : ''}`}>
+                  ({likedStyles.length}/{MAX_STYLE_PICKS})
+                </span>
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {STYLE_KEYWORDS.map(kw => {
+                  const isSelected = likedStyles.includes(kw.id)
+                  const isExcluded = dislikedStyles.includes(kw.id)
+                  return (
+                    <button
+                      key={kw.id}
+                      onClick={() => toggleStyle(kw.id, likedStyles, setLikedStyles, dislikedStyles)}
+                      disabled={isExcluded}
+                      className={`flex flex-col items-center py-4 rounded border-2 text-sm transition-all hover:border-accent
+                        ${isSelected ? 'border-accent text-accent font-extrabold bg-white' : isExcluded ? 'opacity-30 border-gray-100 bg-gray-50' : 'border-gray-200 bg-white text-black font-bold'}
+                        ${!isSelected && likedStyles.length >= MAX_STYLE_PICKS && !isExcluded ? 'opacity-40' : ''}`}
+                    >
+                      <span className="text-xl mb-1">{kw.emoji}</span>
+                      {kw.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-1">절대 싫은 스타일</h2>
+              <p className="text-sm text-[#333333] font-normal mb-4">
+                최대 3개
+                <span className={`ml-2 font-extrabold ${dislikedStyles.length === MAX_STYLE_PICKS ? 'text-point' : ''}`}>
+                  ({dislikedStyles.length}/{MAX_STYLE_PICKS})
+                </span>
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {STYLE_KEYWORDS.map(kw => {
+                  const isSelected = dislikedStyles.includes(kw.id)
+                  const isExcluded = likedStyles.includes(kw.id)
+                  return (
+                    <button
+                      key={kw.id}
+                      onClick={() => toggleStyle(kw.id, dislikedStyles, setDislikedStyles, likedStyles)}
+                      disabled={isExcluded}
+                      className={`flex flex-col items-center py-4 rounded border-2 text-sm transition-all hover:border-point
+                        ${isSelected ? 'border-point text-point font-extrabold bg-white' : isExcluded ? 'opacity-30 border-gray-100 bg-gray-50' : 'border-gray-200 bg-white text-black font-bold'}
+                        ${!isSelected && dislikedStyles.length >= MAX_STYLE_PICKS && !isExcluded ? 'opacity-40' : ''}`}
+                    >
+                      <span className="text-xl mb-1">{kw.emoji}</span>
+                      {kw.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {hasChanged && (
+              <button className="btn-primary py-5 text-lg" disabled={saving} onClick={handleSave}>
+                {saved ? '저장됐어요 ✓' : saving ? '저장 중...' : '변경사항 저장'}
               </button>
-            ))}
+            )}
           </div>
+
         </div>
-
-        {hasChanged && (
-          <button
-            className="btn-primary"
-            disabled={saving}
-            onClick={handleSave}
-          >
-            {saved ? '저장됐어요 ✓' : saving ? '저장 중...' : '변경사항 저장'}
-          </button>
-        )}
-      </div>
-
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md border-t border-gray-100 bg-white flex">
-        <button
-          className="flex-1 py-3 flex flex-col items-center gap-0.5 text-gray-400"
-          onClick={() => router.push('/')}
-        >
-          <span className="text-xl">🏠</span>
-          <span className="text-[10px] font-medium">홈</span>
-        </button>
-        <button
-          className="flex-1 py-3 flex flex-col items-center gap-0.5 text-gray-400"
-          onClick={() => router.push('/wardrobe')}
-        >
-          <span className="text-xl">👗</span>
-          <span className="text-[10px] font-medium">내 옷장</span>
-        </button>
-        <button className="flex-1 py-3 flex flex-col items-center gap-0.5 text-accent">
-          <span className="text-xl">⚙️</span>
-          <span className="text-[10px] font-medium">설정</span>
-        </button>
-      </nav>
+      </main>
     </div>
   )
 }
