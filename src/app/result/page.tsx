@@ -137,7 +137,7 @@ function ResultContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-6 px-8 text-center">
-        <p className="text-4xl font-black text-black animate-pulse">몇 도야 ?</p>
+        <p className="text-6xl animate-pulse">👗</p>
         <p className="text-xl text-black font-bold">오늘의 코디 조합 중...</p>
         <p className="text-base text-[#333333] font-normal">
           {activity ? `${ACTIVITY_LABELS[activity]} 룩을 찾고 있어요` : ''}
