@@ -36,7 +36,7 @@ function OutfitRow({
           <span className="text-3xl opacity-20">{CATEGORY_EMOJI[category]}</span>
         </div>
         <div className="flex-1">
-          <span className="inline-block text-xs font-bold bg-gray-100 text-[#555] px-2.5 py-1 rounded-full mb-2 tracking-widest uppercase">
+          <span className="inline-block text-sm font-extrabold bg-gray-100 text-[#555] px-3 py-1 rounded-full mb-2 tracking-widest uppercase">
             {label}
           </span>
           <p className="text-sm text-[#555] font-normal leading-relaxed">
@@ -53,13 +53,13 @@ function OutfitRow({
         <Image src={item.image_url} alt={label} fill className="object-cover" />
       </div>
       <div className="flex-1 min-w-0">
-        <span className="inline-block text-xs font-bold bg-accent/10 text-accent px-2.5 py-1 rounded-full mb-1.5 tracking-widest uppercase">
+        <span className="inline-block text-sm font-extrabold bg-accent/10 text-accent px-3 py-1 rounded-full mb-1.5 tracking-widest uppercase">
           {label}
         </span>
         <p className="text-base text-black font-bold truncate">{item.description ?? item.colors.join(', ')}</p>
         <div className="flex gap-1.5 mt-1.5 flex-wrap">
           {item.colors.map((c, i) => (
-            <span key={i} className="text-xs text-[#555] bg-gray-100 px-2 py-0.5 rounded-full">{c}</span>
+            <span key={i} className="text-sm text-[#555] bg-gray-100 px-2.5 py-0.5 rounded-full">{c}</span>
           ))}
         </div>
       </div>
@@ -208,7 +208,7 @@ function ResultContent() {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             {/* card header */}
             <div className="px-7 py-5 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-xs font-extrabold text-[#333] tracking-widest uppercase">추천 코디</h2>
+              <h2 className="text-sm font-extrabold text-[#333] tracking-widest uppercase">추천 코디</h2>
               {usedFallback && (
                 <span className="text-xs text-accent font-bold bg-accent/10 px-3 py-1 rounded-full">
                   비슷한 스타일로 ✨
@@ -265,15 +265,25 @@ function ResultContent() {
             ) : (
               <>
                 {/* stylist comment */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-7 py-6">
-                  <p className="text-xs font-extrabold text-[#333] tracking-widest uppercase mb-4">스타일리스트 코멘트</p>
-                  <p className="text-[1.05rem] text-black font-normal leading-relaxed">{recommendation.reason}</p>
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                  <div className="px-7 py-4 border-b border-gray-100">
+                    <p className="text-sm font-extrabold text-[#333] tracking-widest uppercase">스타일리스트 코멘트</p>
+                  </div>
+                  {recommendation.reason.split('\n').filter(Boolean).map((line, i) => {
+                    const [label, ...rest] = line.split(' — ')
+                    return (
+                      <div key={i} className={`px-7 py-4 ${i !== 0 ? 'border-t border-gray-100' : ''}`}>
+                        <p className="text-sm font-extrabold text-accent tracking-widest uppercase mb-1.5">{label}</p>
+                        <p className="text-base text-black font-normal leading-relaxed">{rest.join(' — ')}</p>
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* tips */}
                 {recommendation.tips.length > 0 && (
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-7 py-6">
-                    <p className="text-xs font-extrabold text-[#333] tracking-widest uppercase mb-4">스타일링 팁</p>
+                    <p className="text-sm font-extrabold text-[#333] tracking-widest uppercase mb-4">스타일링 팁</p>
                     <ul className="space-y-3">
                       {recommendation.tips.map((tip, i) => (
                         <li key={i} className="flex gap-3 text-base text-black font-normal">

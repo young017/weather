@@ -9,24 +9,24 @@
   }
 
   body {
-    @apply bg-white text-black antialiased;
+    @apply bg-white text-black antialiased font-medium;
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply w-full py-4 rounded bg-accent text-white font-bold text-base
+    @apply w-full py-4 rounded bg-accent text-white font-extrabold text-lg
            active:scale-95 transition-transform duration-100 disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply w-full py-4 rounded bg-white border-2 border-gray-200 text-black font-bold text-base
+    @apply w-full py-4 rounded bg-white border-2 border-gray-200 text-black font-extrabold text-lg
            active:scale-95 transition-transform duration-100;
   }
 
   .btn-point {
-    @apply w-full py-4 rounded bg-point text-white font-bold text-base
+    @apply w-full py-4 rounded bg-point text-white font-extrabold text-lg
            active:scale-95 transition-transform duration-100 disabled:opacity-40 disabled:cursor-not-allowed;
   }
 
