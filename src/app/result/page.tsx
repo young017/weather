@@ -32,15 +32,15 @@ function OutfitRow({
   if (!item) {
     return (
       <div className="flex items-center gap-5 py-1">
-        <div className="w-20 h-20 flex-shrink-0 rounded border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
-          <span className="text-3xl opacity-25">{CATEGORY_EMOJI[category]}</span>
+        <div className="w-24 h-24 flex-shrink-0 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
+          <span className="text-3xl opacity-20">{CATEGORY_EMOJI[category]}</span>
         </div>
-        <div>
-          <p className="text-xs font-bold text-[#333333] tracking-widest uppercase mb-1">{label}</p>
-          <p className="text-base text-[#333333] font-normal">
-            {isMissing
-              ? CATEGORY_MISSING_MSG[category]
-              : '오늘 활동에 맞는 옷을 찾지 못했어요 🔍'}
+        <div className="flex-1">
+          <span className="inline-block text-xs font-bold bg-gray-100 text-[#555] px-2.5 py-1 rounded-full mb-2 tracking-widest uppercase">
+            {label}
+          </span>
+          <p className="text-sm text-[#555] font-normal leading-relaxed">
+            {isMissing ? CATEGORY_MISSING_MSG[category] : '오늘 활동에 맞는 옷을 찾지 못했어요 🔍'}
           </p>
         </div>
       </div>
@@ -49,13 +49,19 @@ function OutfitRow({
 
   return (
     <div className="flex items-center gap-5">
-      <div className="relative w-20 h-20 rounded overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+      <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-100 shadow-sm">
         <Image src={item.image_url} alt={label} fill className="object-cover" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-accent tracking-widest uppercase mb-1">{label}</p>
-        <p className="text-base text-black font-normal truncate">{item.description ?? item.colors.join(', ')}</p>
-        <p className="text-sm text-[#333333] mt-0.5 font-normal">{item.colors.join(' · ')}</p>
+        <span className="inline-block text-xs font-bold bg-accent/10 text-accent px-2.5 py-1 rounded-full mb-1.5 tracking-widest uppercase">
+          {label}
+        </span>
+        <p className="text-base text-black font-bold truncate">{item.description ?? item.colors.join(', ')}</p>
+        <div className="flex gap-1.5 mt-1.5 flex-wrap">
+          {item.colors.map((c, i) => (
+            <span key={i} className="text-xs text-[#555] bg-gray-100 px-2 py-0.5 rounded-full">{c}</span>
+          ))}
+        </div>
       </div>
     </div>
   )
@@ -163,7 +169,6 @@ function ResultContent() {
   const allMissing = recommendation.allMissing ?? false
   const usedFallback = recommendation.usedFallback ?? false
 
-  // Build outfit rows for top/bottom/outer/shoes based on selection
   const outfitRows = OUTFIT_KEYS
     .filter(key => selectedItems.includes(key))
     .map(key => ({
@@ -172,13 +177,12 @@ function ResultContent() {
       isMissing: missing.includes(key),
     }))
 
-  // Accessory rows
   const wantsAccessory = selectedItems.includes('accessory')
   const hasAccessories = recommendation.accessories.length > 0
   const accessoryMissing = missing.includes('accessory')
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-[#f8f8f8] flex flex-col">
       <header className="sticky top-0 z-10 bg-white border-b-2 border-black px-12 py-0 flex items-center">
         <button
           onClick={() => router.push('/')}
@@ -186,7 +190,7 @@ function ResultContent() {
         >
           ←
         </button>
-        <div>
+        <div className="flex-1">
           <h1 className="font-black text-black text-xl">오늘의 코디</h1>
           {weather && (
             <p className="text-sm text-[#333333] font-normal">
@@ -197,78 +201,84 @@ function ResultContent() {
         </div>
       </header>
 
-      <main className="flex-1 px-12 py-10">
-        <div className="grid grid-cols-2 gap-8">
+      <main className="flex-1 px-12 py-8">
+        <div className="grid grid-cols-2 gap-6">
 
-          {/* Left: outfit rows */}
-          <div className="card space-y-6">
-            <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase">추천 코디</h2>
+          {/* Left: outfit list */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            {/* card header */}
+            <div className="px-7 py-5 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="text-xs font-extrabold text-[#333] tracking-widest uppercase">추천 코디</h2>
+              {usedFallback && (
+                <span className="text-xs text-accent font-bold bg-accent/10 px-3 py-1 rounded-full">
+                  비슷한 스타일로 ✨
+                </span>
+              )}
+            </div>
 
-            {outfitRows.map(({ key, item, isMissing }) => (
-              <OutfitRow key={key} category={key} item={item} isMissing={isMissing} />
-            ))}
+            <div className="divide-y divide-gray-50">
+              {outfitRows.map(({ key, item, isMissing }) => (
+                <div key={key} className="px-7 py-5">
+                  <OutfitRow category={key} item={item} isMissing={isMissing} />
+                </div>
+              ))}
 
-            {wantsAccessory && (
-              hasAccessories
-                ? recommendation.accessories.map((item, i) => (
-                    <OutfitRow key={`acc-${i}`} category="accessory" item={item} isMissing={false} />
-                  ))
-                : <OutfitRow category="accessory" item={null} isMissing={accessoryMissing} />
-            )}
+              {wantsAccessory && (
+                hasAccessories
+                  ? recommendation.accessories.map((item, i) => (
+                      <div key={`acc-${i}`} className="px-7 py-5">
+                        <OutfitRow category="accessory" item={item} isMissing={false} />
+                      </div>
+                    ))
+                  : (
+                    <div className="px-7 py-5">
+                      <OutfitRow category="accessory" item={null} isMissing={accessoryMissing} />
+                    </div>
+                  )
+              )}
 
-            {outfitRows.length === 0 && !wantsAccessory && (
-              <p className="text-base text-[#333333] font-normal text-center py-6">
-                선택된 아이템이 없어요
-              </p>
-            )}
-
-            {usedFallback && (
-              <div className="border-t-2 border-gray-100 pt-5">
-                <p className="text-sm text-accent font-bold">
-                  딱 맞는 스타일은 없어서 비슷한 걸로 골라봤어요 ✨
-                </p>
-              </div>
-            )}
+              {outfitRows.length === 0 && !wantsAccessory && (
+                <div className="px-7 py-10 text-center">
+                  <p className="text-base text-[#333333] font-normal">선택된 아이템이 없어요</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right: comment / all-missing / fallback notice */}
+          {/* Right: comment / all-missing */}
           <div className="flex flex-col gap-4">
             {allMissing ? (
-              <>
-                <div className="card flex-1 flex flex-col items-center justify-center text-center gap-5 py-12">
-                  <p className="text-xl text-black font-bold leading-relaxed">
-                    등록된 옷이 없어요.<br />옷장을 먼저 채워주세요 👗
-                  </p>
-                  <button
-                    className="btn-primary w-auto px-8 py-4 text-base"
-                    onClick={() => router.push('/wardrobe/add')}
-                  >
-                    옷장 채우러 가기
-                  </button>
-                </div>
-                <button className="btn-secondary py-5 text-lg" onClick={() => router.push('/')}>
-                  홈으로
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex-1 flex flex-col items-center justify-center text-center gap-5 py-12 px-7">
+                <p className="text-xl text-black font-bold leading-relaxed">
+                  등록된 옷이 없어요.<br />옷장을 먼저 채워주세요 👗
+                </p>
+                <button
+                  className="btn-primary w-auto px-8 py-4 text-base"
+                  onClick={() => router.push('/wardrobe/add')}
+                >
+                  옷장 채우러 가기
                 </button>
-              </>
+                <button className="text-sm text-[#555] font-normal underline" onClick={() => router.push('/')}>
+                  홈으로 돌아가기
+                </button>
+              </div>
             ) : (
               <>
-                <div className="card">
-                  <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-4">
-                    스타일리스트 코멘트
-                  </h2>
-                  <p className="text-base text-black font-normal leading-relaxed">{recommendation.reason}</p>
+                {/* stylist comment */}
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-7 py-6">
+                  <p className="text-xs font-extrabold text-[#333] tracking-widest uppercase mb-4">스타일리스트 코멘트</p>
+                  <p className="text-[1.05rem] text-black font-normal leading-relaxed">{recommendation.reason}</p>
                 </div>
 
+                {/* tips */}
                 {recommendation.tips.length > 0 && (
-                  <div className="card">
-                    <h2 className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-4">
-                      스타일링 팁
-                    </h2>
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-7 py-6">
+                    <p className="text-xs font-extrabold text-[#333] tracking-widest uppercase mb-4">스타일링 팁</p>
                     <ul className="space-y-3">
                       {recommendation.tips.map((tip, i) => (
                         <li key={i} className="flex gap-3 text-base text-black font-normal">
-                          <span className="text-accent font-black mt-0.5 flex-shrink-0">—</span>
-                          <span>{tip}</span>
+                          <span className="text-accent font-black flex-shrink-0 mt-0.5">—</span>
+                          <span className="leading-relaxed">{tip}</span>
                         </li>
                       ))}
                     </ul>
@@ -276,7 +286,7 @@ function ResultContent() {
                 )}
 
                 <button
-                  className="btn-secondary py-5 text-lg mt-auto"
+                  className="btn-primary py-5 text-lg mt-auto"
                   onClick={() => router.push('/')}
                 >
                   다시 추천 받기
