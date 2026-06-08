@@ -7,7 +7,7 @@ import type { Recommendation, WeatherData, Activity, Category, WardrobeItem } fr
 import { ACTIVITY_LABELS, CATEGORY_LABELS } from '@/lib/constants'
 
 const CATEGORY_MISSING_MSG: Record<Category, string> = {
-  top:       '어떤 코디든 상의가 핵심이에요 👕',
+  top:       '상의부터 채워볼까요 👕',
   bottom:    '하의 하나면 코디의 절반은 완성이에요 👖',
   outer:     '아우터 하나면 어떤 날씨든 걱정 없어요 🧥',
   shoes:     '신발까지 있으면 진짜 완벽한 코디예요 👟',
