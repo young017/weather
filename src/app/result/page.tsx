@@ -14,6 +14,14 @@ const CATEGORY_MISSING_MSG: Record<Category, string> = {
   accessory: '작은 포인트 하나가 코디를 바꿔요 💍',
 }
 
+const CATEGORY_NO_MATCH_MSG: Record<Category, string> = {
+  top:       '오늘 활동에 맞는 상의를 찾지 못했어요',
+  bottom:    '오늘 활동에 맞는 하의를 찾지 못했어요',
+  outer:     '오늘은 아우터 없이도 충분해요 🙆',
+  shoes:     '오늘 활동에 맞는 신발을 찾지 못했어요',
+  accessory: '오늘은 없어도 완성된 코디예요 ✨',
+}
+
 const CATEGORY_EMOJI: Record<Category, string> = {
   top: '👕', bottom: '👖', outer: '🧥', shoes: '👟', accessory: '💍',
 }
@@ -40,7 +48,7 @@ function OutfitRow({
             {label}
           </span>
           <p className="text-sm text-[#555] font-normal leading-relaxed">
-            {isMissing ? CATEGORY_MISSING_MSG[category] : '오늘 활동에 맞는 옷을 찾지 못했어요 🔍'}
+            {isMissing ? CATEGORY_MISSING_MSG[category] : CATEGORY_NO_MATCH_MSG[category]}
           </p>
         </div>
       </div>
