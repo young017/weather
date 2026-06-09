@@ -71,7 +71,7 @@ export const ACTIVITY_DESCRIPTIONS: Record<Activity, string> = {
 }
 
 export const ACTIVITY_DETAIL: Record<Activity, string> = {
-  formal:   '면접, 비즈니스 미팅, 결혼식, 장례식처럼 격식이 반드시 필요한 자리. 캐주얼한 옷은 절대 안 됨.',
+  formal:   '면접, 비즈니스 미팅, 결혼식, 장례식처럼 격식이 반드시 필요한 자리. 캐주얼한 옷은 절대 안 됨. 여름이라도 반드시 긴바지 착용.',
   office:   '일반 출근, 등교. 단정하되 하루 종일 입어도 불편하지 않은 옷.',
   daily:    '친구 만남, 나들이 등 편안한 일상 외출. 특별한 드레스코드 없음.',
   active:   '운동, 등산, 캠핑 등 몸을 쓰는 날. 기능성 스포츠웨어, 유니폼만 해당. 일반 캐주얼 옷은 제외.',
