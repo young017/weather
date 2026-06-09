@@ -278,10 +278,17 @@ function ResultContent() {
                   </div>
                   {recommendation.reason.split('\n').filter(Boolean).map((line, i) => {
                     const [label, ...rest] = line.split(' — ')
+                    const sentences = rest.join(' — ').split(/\.\s+/).filter(Boolean)
                     return (
                       <div key={i} className={`px-7 py-4 ${i !== 0 ? 'border-t border-gray-100' : ''}`}>
-                        <p className="text-sm font-extrabold text-accent tracking-widest uppercase mb-1.5">{label}</p>
-                        <p className="text-base text-black font-normal leading-relaxed">{rest.join(' — ')}</p>
+                        <p className="text-sm font-extrabold text-accent tracking-widest uppercase mb-2">{label}</p>
+                        <div className="space-y-1">
+                          {sentences.map((s, j) => (
+                            <p key={j} className="text-base text-black font-normal leading-relaxed">
+                              {s.endsWith('.') ? s : `${s}.`}
+                            </p>
+                          ))}
+                        </div>
                       </div>
                     )
                   })}
@@ -292,12 +299,21 @@ function ResultContent() {
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-7 py-6">
                     <p className="text-sm font-extrabold text-[#333] tracking-widest uppercase mb-4">스타일링 팁</p>
                     <ul className="space-y-3">
-                      {recommendation.tips.map((tip, i) => (
-                        <li key={i} className="flex gap-3 text-base text-black font-normal">
-                          <span className="text-accent font-black flex-shrink-0 mt-0.5">—</span>
-                          <span className="leading-relaxed">{tip}</span>
-                        </li>
-                      ))}
+                      {recommendation.tips.map((tip, i) => {
+                        const sentences = tip.split(/\.\s+/).filter(Boolean)
+                        return (
+                          <li key={i} className="flex gap-3 text-base text-black font-normal">
+                            <span className="text-accent font-black flex-shrink-0 mt-0.5">—</span>
+                            <div className="space-y-1">
+                              {sentences.map((s, j) => (
+                                <p key={j} className="leading-relaxed">
+                                  {s.endsWith('.') ? s : `${s}.`}
+                                </p>
+                              ))}
+                            </div>
+                          </li>
+                        )
+                      })}
                     </ul>
                   </div>
                 )}
