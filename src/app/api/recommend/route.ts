@@ -195,7 +195,8 @@ JSON만 출력하세요 (코드블록 없이):
       missingCategories,
       allMissing: false,
     })
-  } catch {
+  } catch (e) {
+    console.error('[recommend] parse error:', e, '\nresponse:', responseText)
     return NextResponse.json({ error: '추천 생성에 실패했습니다' }, { status: 500 })
   }
 }
