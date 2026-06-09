@@ -74,6 +74,29 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(data)
 }
 
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: '인증이 필요합니다' }, { status: 401 })
+  }
+
+  const { id, category, style, season, description } = await request.json()
+
+  const { data, error } = await supabase
+    .from('wardrobe')
+    .update({ category, style, season, description })
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  return NextResponse.json(data)
+}
+
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

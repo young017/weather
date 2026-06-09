@@ -20,7 +20,7 @@ export interface WardrobeItem {
   image_url: string
   category: Category
   colors: string[]
-  style: Style
+  style: Style[]
   material: string | null
   season: Season
   description: string | null
@@ -42,7 +42,7 @@ export interface WeatherData {
 export interface ClothingAnalysis {
   category: Category
   colors: string[]
-  style: Style
+  style: Style[]
   material: string | null
   season: Season
   description: string

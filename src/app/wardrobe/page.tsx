@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import type { WardrobeItem, Category } from '@/types'
+import type { WardrobeItem, Category, Style } from '@/types'
 import { CATEGORY_LABELS, SEASON_LABELS, STYLE_LABELS } from '@/lib/constants'
 import { TopNav } from '@/components/TopNav'
 
@@ -110,21 +110,28 @@ export default function WardrobePage() {
                     fill
                     className="object-cover"
                   />
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    disabled={deletingId === item.id}
-                    className="absolute top-2 right-2 w-8 h-8 bg-black/70 rounded text-white text-sm
-                               opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold"
-                  >
-                    ✕
-                  </button>
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => router.push(`/wardrobe/edit/${item.id}`)}
+                      className="w-8 h-8 bg-black/70 rounded text-white text-sm flex items-center justify-center font-bold"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      disabled={deletingId === item.id}
+                      className="w-8 h-8 bg-black/70 rounded text-white text-sm flex items-center justify-center font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
                 <div className="mt-2 px-0.5">
                   <p className="text-sm font-bold text-black truncate">
                     {item.description ?? item.colors.join(', ')}
                   </p>
                   <div className="flex gap-1 mt-0.5">
-                    <span className="text-xs text-[#333333] font-normal">{STYLE_LABELS[item.style]}</span>
+                    <span className="text-xs text-[#333333] font-normal">{(item.style as Style[]).map(s => STYLE_LABELS[s]).join(', ')}</span>
                     <span className="text-xs text-gray-300">·</span>
                     <span className="text-xs text-[#333333] font-normal">{SEASON_LABELS[item.season]}</span>
                   </div>

@@ -46,9 +46,9 @@ export const PERSONAL_COLOR_SWATCHES: Record<PersonalColor, string[]> = {
 }
 
 export const PERSONAL_COLOR_COLORS: Record<PersonalColor, string[]> = {
-  spring_warm: ['코랄', '피치', '아이보리', '골드', '살구', '연노랑', '오렌지'],
-  summer_cool: ['라벤더', '로즈', '파우더블루', '실버', '연보라', '민트', '핑크'],
-  autumn_warm: ['카키', '브라운', '머스타드', '올리브', '테라코타', '베이지', '오트밀'],
+  spring_warm: ['코랄', '피치', '아이보리', '골드', '살구', '연노랑', '오렌지', '흰색'],
+  summer_cool: ['라벤더', '로즈', '파우더블루', '실버', '연보라', '민트', '핑크', '흰색'],
+  autumn_warm: ['카키', '브라운', '머스타드', '올리브', '테라코타', '베이지', '오트밀','흰색'],
   winter_cool: ['블랙', '네이비', '버건디', '화이트', '다크그린', '로열블루', '그레이'],
 }
 

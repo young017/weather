@@ -24,7 +24,9 @@ function filterByWeather(items: WardrobeItem[], feelsLike: number): WardrobeItem
 
 function filterByStyle(items: WardrobeItem[], activity: Activity): WardrobeItem[] {
   const styles = ACTIVITY_ALLOWED_STYLES[activity]
-  return items.filter(item => (styles as string[]).includes(item.style))
+  return items.filter(item =>
+    (Array.isArray(item.style) ? item.style : [item.style]).some(s => (styles as string[]).includes(s))
+  )
 }
 
 function sortByPersonalColor(items: WardrobeItem[], personalColor: PersonalColor): WardrobeItem[] {
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest) {
 
   const wardrobeText = topItems
     .map((item, i) =>
-      `${i + 1}. [${item.category}] ${item.colors.join('+')} | ${item.style} | ${item.season}${item.description ? ` | ${item.description}` : ''}`
+      `${i + 1}. [${item.category}] ${item.colors.join('+')} | ${Array.isArray(item.style) ? item.style.join('+') : item.style} | ${item.season}${item.description ? ` | ${item.description}` : ''}`
     )
     .join('\n')
 

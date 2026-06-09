@@ -150,14 +150,18 @@ export default function AddWardrobePage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-3 block">스타일</label>
+                    <label className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-3 block">스타일 <span className="text-accent font-normal normal-case tracking-normal">(중복 선택 가능)</span></label>
                     <div className="flex flex-wrap gap-2">
                       {STYLES.map(s => (
                         <button
                           key={s}
-                          onClick={() => setAnalysis({ ...analysis, style: s })}
+                          onClick={() => {
+                            const cur = analysis.style as Style[]
+                            const next = cur.includes(s) ? cur.filter(x => x !== s) : [...cur, s]
+                            if (next.length > 0) setAnalysis({ ...analysis, style: next })
+                          }}
                           className={`px-4 py-2 rounded text-sm font-bold border-2 transition-colors
-                            ${analysis.style === s
+                            ${(analysis.style as Style[]).includes(s)
                               ? 'bg-accent text-white border-accent'
                               : 'bg-white text-black border-gray-200 hover:border-accent'
                             }`}
