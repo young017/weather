@@ -39,14 +39,13 @@ function OutfitRow({
   const label = CATEGORY_LABELS[category]
 
   if (!item) {
-    const boxCls = isMissing
-      ? 'border-2 border-dashed border-red-200 bg-red-50'
-      : 'border-2 border-dashed border-amber-200 bg-amber-50'
-    const emojiCls = isMissing ? 'text-red-300' : 'text-amber-300'
-    const tagCls = isMissing
-      ? 'bg-red-100 text-red-500'
-      : 'bg-amber-100 text-amber-600'
-    const textCls = isMissing ? 'text-red-500' : 'text-amber-600'
+    const isOptional = !isMissing && (category === 'outer' || category === 'accessory')
+    const boxCls = isOptional
+      ? 'border-2 border-dashed border-amber-200 bg-amber-50'
+      : 'border-2 border-dashed border-red-200 bg-red-50'
+    const emojiCls = isOptional ? 'text-amber-300' : 'text-red-300'
+    const tagCls = isOptional ? 'bg-amber-100 text-amber-600' : 'bg-red-100 text-red-500'
+    const textCls = isOptional ? 'text-amber-600' : 'text-red-500'
 
     return (
       <div className="flex items-center gap-5 py-1">
