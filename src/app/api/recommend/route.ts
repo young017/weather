@@ -14,11 +14,18 @@ import type { WardrobeItem, Activity, Category, PersonalColor, WeatherData, Seas
 
 const client = new Anthropic()
 
-function filterByWeather(items: WardrobeItem[], feelsLike: number): WardrobeItem[] {
+function filterByWeather(items: WardrobeItem[], feelsLike: number, activity: Activity): WardrobeItem[] {
   let allowed: Season[]
-  if (feelsLike >= 23)      allowed = ['summer', 'all_season']
-  else if (feelsLike >= 10) allowed = ['spring', 'autumn', 'all_season']
-  else                      allowed = ['winter', 'all_season']
+  if (feelsLike >= 23) {
+    // 포멀/오피스는 여름에도 봄가을 아이템(슬랙스, 트라우저) 허용
+    allowed = (activity === 'formal' || activity === 'office')
+      ? ['summer', 'spring', 'autumn', 'all_season']
+      : ['summer', 'all_season']
+  } else if (feelsLike >= 10) {
+    allowed = ['spring', 'autumn', 'all_season']
+  } else {
+    allowed = ['winter', 'all_season']
+  }
   return items.filter(item => {
     const seasons = Array.isArray(item.season) ? item.season : [item.season as unknown as Season]
     return seasons.some(s => (allowed as string[]).includes(s))
@@ -30,6 +37,15 @@ function filterByStyle(items: WardrobeItem[], activity: Activity): WardrobeItem[
   return items.filter(item =>
     (Array.isArray(item.style) ? item.style : [item.style]).some(s => (styles as string[]).includes(s))
   )
+}
+
+function sortByStylePriority(items: WardrobeItem[], activity: Activity): WardrobeItem[] {
+  const priorityStyle = ACTIVITY_ALLOWED_STYLES[activity][0]
+  return [...items].sort((a, b) => {
+    const aHas = (Array.isArray(a.style) ? a.style : [a.style]).includes(priorityStyle)
+    const bHas = (Array.isArray(b.style) ? b.style : [b.style]).includes(priorityStyle)
+    return aHas === bHas ? 0 : aHas ? -1 : 1
+  })
 }
 
 function sortByPersonalColor(items: WardrobeItem[], personalColor: PersonalColor): WardrobeItem[] {
@@ -82,7 +98,7 @@ export async function POST(request: NextRequest) {
   const missingCategories: Category[] = selectedItems.filter(cat => !allWardrobeCategories.has(cat))
 
   // 1: weather filter
-  const weatherFiltered = filterByWeather(allItems as WardrobeItem[], weather.feels_like)
+  const weatherFiltered = filterByWeather(allItems as WardrobeItem[], weather.feels_like, activity)
 
   // 2: style filter (fallback to all weather items if no style match)
   let styleFiltered = filterByStyle(weatherFiltered, activity)
@@ -93,8 +109,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '현재 날씨에 맞는 옷이 부족합니다.' }, { status: 400 })
   }
 
-  // 3: sort by personal color
-  const sorted = sortByPersonalColor(styleFiltered, profile.personal_color as PersonalColor)
+  // 3: sort by style priority then personal color
+  const prioritized = sortByStylePriority(styleFiltered, activity)
+  const sorted = sortByPersonalColor(prioritized, profile.personal_color as PersonalColor)
 
   // 4: filter to selected categories (top 20 for Claude)
   const topItems = sorted

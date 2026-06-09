@@ -94,7 +94,7 @@ export const ACTIVITY_ALLOWED_STYLES: Record<Activity, Style[]> = {
   daily:    ['casual', 'street', 'minimal', 'vintage', 'boyish', 'chic', 'classic', 'preppy', 'romantic', 'girly'],
   active:   ['sporty'],
   date:     ['romantic', 'girly', 'chic', 'minimal', 'casual'],
-  nightout: ['chic', 'street', 'girly', 'romantic', 'formal'],
+  nightout: ['romantic', 'chic', 'street', 'girly', 'formal'],
 }
 
 export const CATEGORY_LABELS: Record<Category, string> = {
