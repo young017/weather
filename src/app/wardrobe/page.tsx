@@ -16,25 +16,109 @@ const CATEGORY_FILTERS: Array<{ value: Category | 'all'; label: string }> = [
   { value: 'accessory', label: '액세서리' },
 ]
 
+function ItemModal({ item, onClose, onEdit, onDelete }: {
+  item: WardrobeItem
+  onClose: () => void
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  const styles = Array.isArray(item.style) ? item.style as Style[] : [item.style as unknown as Style]
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-lg"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="relative w-full aspect-square bg-gray-100">
+          <Image src={item.image_url} alt={item.description ?? item.category} fill className="object-cover" />
+        </div>
+
+        <div className="px-7 py-6 space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <p className="text-lg font-black text-black leading-snug">
+              {item.description ?? item.colors.join(', ')}
+            </p>
+            <button onClick={onClose} className="text-gray-400 hover:text-black text-xl font-bold flex-shrink-0">✕</button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">종류</p>
+              <p className="text-base font-bold text-black">{CATEGORY_LABELS[item.category]}</p>
+            </div>
+            <div>
+              <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">계절</p>
+              <p className="text-base font-bold text-black">{SEASON_LABELS[item.season]}</p>
+            </div>
+            <div>
+              <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">스타일</p>
+              <div className="flex flex-wrap gap-1.5 mt-0.5">
+                {styles.map(s => (
+                  <span key={s} className="text-sm font-bold bg-accent/10 text-accent px-2.5 py-0.5 rounded-full">
+                    {STYLE_LABELS[s]}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">색상</p>
+              <div className="flex flex-wrap gap-1.5 mt-0.5">
+                {item.colors.map((c, i) => (
+                  <span key={i} className="text-sm text-[#555] bg-gray-100 px-2.5 py-0.5 rounded-full">{c}</span>
+                ))}
+              </div>
+            </div>
+            {item.material && (
+              <div>
+                <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">소재</p>
+                <p className="text-base font-bold text-black">{item.material}</p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={onEdit}
+              className="flex-1 py-3 rounded border-2 border-black text-black text-base font-extrabold hover:bg-black hover:text-white transition-colors"
+            >
+              수정
+            </button>
+            <button
+              onClick={onDelete}
+              className="flex-1 py-3 rounded border-2 border-red-400 text-red-500 text-base font-extrabold hover:bg-red-500 hover:text-white transition-colors"
+            >
+              삭제
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function WardrobePage() {
   const router = useRouter()
   const [items, setItems] = useState<WardrobeItem[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<Category | 'all'>('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null)
 
   useEffect(() => {
     fetch('/api/wardrobe')
       .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data)) setItems(data)
-      })
+      .then(data => { if (Array.isArray(data)) setItems(data) })
       .finally(() => setLoading(false))
   }, [])
 
   const handleDelete = async (id: string) => {
     if (!confirm('이 옷을 삭제할까요?')) return
     setDeletingId(id)
+    setSelectedItem(null)
     await fetch('/api/wardrobe', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -49,6 +133,15 @@ export default function WardrobePage() {
   return (
     <div className="page-container">
       <TopNav />
+
+      {selectedItem && (
+        <ItemModal
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onEdit={() => router.push(`/wardrobe/edit/${selectedItem.id}`)}
+          onDelete={() => handleDelete(selectedItem.id)}
+        />
+      )}
 
       <div className="px-12 pt-8 pb-4 border-b border-gray-200 flex items-center justify-between">
         <div>
@@ -102,36 +195,31 @@ export default function WardrobePage() {
         ) : (
           <div className="grid grid-cols-5 gap-4">
             {filtered.map(item => (
-              <div key={item.id} className="relative group">
-                <div className="aspect-square rounded overflow-hidden bg-gray-100 relative border border-gray-200">
+              <div
+                key={item.id}
+                className="relative group cursor-pointer"
+                onClick={() => setSelectedItem(item)}
+              >
+                <div className="aspect-square rounded overflow-hidden bg-gray-100 relative border border-gray-200 hover:border-accent transition-colors">
                   <Image
                     src={item.image_url}
                     alt={item.description ?? item.category}
                     fill
                     className="object-cover"
                   />
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => router.push(`/wardrobe/edit/${item.id}`)}
-                      className="w-8 h-8 bg-black/70 rounded text-white text-sm flex items-center justify-center font-bold"
-                    >
-                      ✎
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      disabled={deletingId === item.id}
-                      className="w-8 h-8 bg-black/70 rounded text-white text-sm flex items-center justify-center font-bold"
-                    >
-                      ✕
-                    </button>
-                  </div>
                 </div>
                 <div className="mt-2 px-0.5">
                   <p className="text-sm font-bold text-black truncate">
                     {item.description ?? item.colors.join(', ')}
                   </p>
-                  <div className="flex gap-1 mt-0.5">
-                    <span className="text-xs text-[#333333] font-normal">{(item.style as Style[]).map(s => STYLE_LABELS[s]).join(', ')}</span>
+                  <div className="flex gap-1 mt-0.5 flex-wrap">
+                    <span className="text-xs text-[#333333] font-normal">
+                      {CATEGORY_LABELS[item.category]}
+                    </span>
+                    <span className="text-xs text-gray-300">·</span>
+                    <span className="text-xs text-[#333333] font-normal">
+                      {(Array.isArray(item.style) ? item.style as Style[] : [item.style as unknown as Style]).map(s => STYLE_LABELS[s]).join(', ')}
+                    </span>
                     <span className="text-xs text-gray-300">·</span>
                     <span className="text-xs text-[#333333] font-normal">{SEASON_LABELS[item.season]}</span>
                   </div>
