@@ -91,7 +91,7 @@ export const ACTIVITY_ICONS: Record<Activity, string> = {
 export const ACTIVITY_ALLOWED_STYLES: Record<Activity, Style[]> = {
   formal:   ['formal', 'classic', 'chic'],
   office:   ['formal', 'minimal', 'classic', 'preppy'],
-  daily:    ['casual', 'street', 'minimal', 'vintage', 'boyish'],
+  daily:    ['casual', 'street', 'minimal', 'vintage', 'boyish', 'chic', 'classic', 'preppy', 'romantic', 'girly'],
   active:   ['sporty'],
   date:     ['romantic', 'girly', 'chic', 'minimal', 'casual'],
   nightout: ['chic', 'street', 'girly', 'romantic', 'formal'],
