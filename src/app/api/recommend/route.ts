@@ -170,7 +170,7 @@ JSON만 출력하세요 (코드블록 없이):
 
   const message = await client.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
+    max_tokens: 4096,
     messages: [{ role: 'user', content: prompt }],
   })
 
