@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import type { WardrobeItem, Category, Style } from '@/types'
+import type { WardrobeItem, Category, Style, Season } from '@/types'
 import { CATEGORY_LABELS, SEASON_LABELS, STYLE_LABELS } from '@/lib/constants'
 import { TopNav } from '@/components/TopNav'
 
@@ -30,7 +30,7 @@ function ItemModal({ item, onClose, onEdit, onDelete }: {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-lg"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         <div className="relative w-full aspect-square bg-gray-100">
@@ -52,7 +52,13 @@ function ItemModal({ item, onClose, onEdit, onDelete }: {
             </div>
             <div>
               <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">계절</p>
-              <p className="text-base font-bold text-black">{SEASON_LABELS[item.season]}</p>
+              <div className="flex flex-wrap gap-1.5 mt-0.5">
+                {(Array.isArray(item.season) ? item.season as Season[] : [item.season as unknown as Season]).map(s => (
+                  <span key={s} className="text-sm font-bold bg-accent/10 text-accent px-2.5 py-0.5 rounded-full">
+                    {SEASON_LABELS[s]}
+                  </span>
+                ))}
+              </div>
             </div>
             <div>
               <p className="text-xs font-extrabold text-[#999] tracking-widest uppercase mb-1">스타일</p>
@@ -221,7 +227,9 @@ export default function WardrobePage() {
                       {(Array.isArray(item.style) ? item.style as Style[] : [item.style as unknown as Style]).map(s => STYLE_LABELS[s]).join(', ')}
                     </span>
                     <span className="text-xs text-gray-300">·</span>
-                    <span className="text-xs text-[#333333] font-normal">{SEASON_LABELS[item.season]}</span>
+                    <span className="text-xs text-[#333333] font-normal">
+                      {(Array.isArray(item.season) ? item.season as Season[] : [item.season as unknown as Season]).map(s => SEASON_LABELS[s]).join('·')}
+                    </span>
                   </div>
                 </div>
               </div>

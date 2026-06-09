@@ -2,7 +2,7 @@ export type PersonalColor = 'spring_warm' | 'summer_cool' | 'autumn_warm' | 'win
 export type Gender = 'male' | 'female' | 'neutral'
 export type Category = 'top' | 'bottom' | 'outer' | 'shoes' | 'accessory'
 export type Style = 'casual' | 'formal' | 'sporty' | 'street' | 'minimal' | 'vintage' | 'chic' | 'girly' | 'boyish' | 'classic' | 'romantic' | 'preppy'
-export type Season = 'summer' | 'spring_autumn' | 'winter'
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter' | 'all_season'
 export type Activity = 'daily' | 'office' | 'formal' | 'active' | 'date' | 'nightout'
 
 export interface Profile {
@@ -22,7 +22,7 @@ export interface WardrobeItem {
   colors: string[]
   style: Style[]
   material: string | null
-  season: Season
+  season: Season[]
   description: string | null
   created_at: string
   deleted_at: string | null
@@ -44,7 +44,7 @@ export interface ClothingAnalysis {
   colors: string[]
   style: Style[]
   material: string | null
-  season: Season
+  season: Season[]
   description: string
 }
 

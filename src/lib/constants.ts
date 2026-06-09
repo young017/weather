@@ -106,9 +106,11 @@ export const CATEGORY_LABELS: Record<Category, string> = {
 }
 
 export const SEASON_LABELS: Record<Season, string> = {
-  summer:       '여름',
-  spring_autumn: '봄/가을',
-  winter:       '겨울',
+  spring:     '봄',
+  summer:     '여름',
+  autumn:     '가을',
+  winter:     '겨울',
+  all_season: '사계절',
 }
 
 export const STYLE_LABELS: Record<Style, string> = {

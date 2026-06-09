@@ -39,16 +39,25 @@ function OutfitRow({
   const label = CATEGORY_LABELS[category]
 
   if (!item) {
+    const boxCls = isMissing
+      ? 'border-2 border-dashed border-red-200 bg-red-50'
+      : 'border-2 border-dashed border-amber-200 bg-amber-50'
+    const emojiCls = isMissing ? 'text-red-300' : 'text-amber-300'
+    const tagCls = isMissing
+      ? 'bg-red-100 text-red-500'
+      : 'bg-amber-100 text-amber-600'
+    const textCls = isMissing ? 'text-red-500' : 'text-amber-600'
+
     return (
       <div className="flex items-center gap-5 py-1">
-        <div className="w-24 h-24 flex-shrink-0 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50">
-          <span className="text-3xl opacity-20">{CATEGORY_EMOJI[category]}</span>
+        <div className={`w-24 h-24 flex-shrink-0 rounded-xl flex items-center justify-center ${boxCls}`}>
+          <span className={`text-3xl ${emojiCls}`}>{CATEGORY_EMOJI[category]}</span>
         </div>
         <div className="flex-1">
-          <span className="inline-block text-sm font-extrabold bg-gray-100 text-[#555] px-3 py-1 rounded-full mb-2 tracking-widest uppercase">
+          <span className={`inline-block text-sm font-extrabold px-3 py-1 rounded-full mb-2 tracking-widest uppercase ${tagCls}`}>
             {label}
           </span>
-          <p className="text-sm text-[#555] font-normal leading-relaxed">
+          <p className={`text-sm font-normal leading-relaxed ${textCls}`}>
             {isMissing ? CATEGORY_MISSING_MSG[category] : CATEGORY_NO_MATCH_MSG[category]}
           </p>
         </div>

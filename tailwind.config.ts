@@ -2,6 +2,10 @@ import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
+  safelist: [
+    'border-red-200', 'bg-red-50', 'text-red-300', 'bg-red-100', 'text-red-500',
+    'border-amber-200', 'bg-amber-50', 'text-amber-300', 'bg-amber-100', 'text-amber-600',
+  ],
   theme: {
     extend: {
       colors: {

@@ -8,7 +8,7 @@ import { CATEGORY_LABELS, STYLE_LABELS, SEASON_LABELS } from '@/lib/constants'
 
 const CATEGORIES: Category[] = ['top', 'bottom', 'outer', 'shoes', 'accessory']
 const STYLES: Style[] = ['casual', 'minimal', 'street', 'sporty', 'formal', 'vintage', 'chic', 'girly', 'boyish', 'classic', 'romantic', 'preppy']
-const SEASONS: Season[] = ['summer', 'spring_autumn', 'winter']
+const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter']
 
 export default function EditWardrobePage() {
   const router = useRouter()
@@ -17,7 +17,7 @@ export default function EditWardrobePage() {
   const [item, setItem] = useState<WardrobeItem | null>(null)
   const [category, setCategory] = useState<Category>('top')
   const [styles, setStyles] = useState<Style[]>([])
-  const [season, setSeason] = useState<Season>('spring_autumn')
+  const [seasons, setSeasons] = useState<Season[]>(['spring', 'summer', 'autumn', 'winter'])
   const [description, setDescription] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,7 @@ export default function EditWardrobePage() {
         setItem(found)
         setCategory(found.category)
         setStyles(Array.isArray(found.style) ? found.style as Style[] : [found.style as unknown as Style])
-        setSeason(found.season)
+        setSeasons(Array.isArray(found.season) ? found.season as Season[] : [found.season as unknown as Season])
         setDescription(found.description ?? '')
       })
   }, [id, router])
@@ -40,13 +40,17 @@ export default function EditWardrobePage() {
     setStyles(prev => prev.includes(s) ? (prev.length > 1 ? prev.filter(x => x !== s) : prev) : [...prev, s])
   }
 
+  const toggleSeason = (s: Season) => {
+    setSeasons(prev => prev.includes(s) ? (prev.length > 1 ? prev.filter(x => x !== s) : prev) : [...prev, s])
+  }
+
   const handleSave = async () => {
     setSaving(true)
     setError(null)
     const res = await fetch('/api/wardrobe', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, category, style: styles, season, description }),
+      body: JSON.stringify({ id, category, style: styles, season: seasons, description }),
     })
     const data = await res.json()
     if (!res.ok) {
@@ -66,13 +70,13 @@ export default function EditWardrobePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <header className="sticky top-0 z-10 bg-white border-b-2 border-black px-12 py-0 flex items-center">
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
+      <header className="flex-shrink-0 bg-white border-b-2 border-black px-12 py-0 flex items-center">
         <button onClick={() => router.back()} className="text-black font-bold text-2xl py-5 pr-6 border-r-2 border-gray-200 mr-6">←</button>
         <h1 className="font-black text-black text-xl">옷 수정</h1>
       </header>
 
-      <main className="flex-1 px-12 py-10">
+      <main className="flex-1 overflow-y-auto px-12 py-10">
         <div className="grid grid-cols-2 gap-12">
 
           <div className="relative w-full aspect-square rounded overflow-hidden bg-gray-100 border border-gray-200">
@@ -109,12 +113,12 @@ export default function EditWardrobePage() {
               </div>
 
               <div>
-                <label className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-3 block">계절</label>
+                <label className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-3 block">계절 <span className="text-accent font-normal normal-case tracking-normal">(중복 선택 가능)</span></label>
                 <div className="flex flex-wrap gap-2">
                   {SEASONS.map(s => (
-                    <button key={s} onClick={() => setSeason(s)}
+                    <button key={s} onClick={() => toggleSeason(s)}
                       className={`px-4 py-2 rounded text-sm font-bold border-2 transition-colors
-                        ${season === s ? 'bg-accent text-white border-accent' : 'bg-white text-black border-gray-200 hover:border-accent'}`}>
+                        ${seasons.includes(s) ? 'bg-accent text-white border-accent' : 'bg-white text-black border-gray-200 hover:border-accent'}`}>
                       {SEASON_LABELS[s]}
                     </button>
                   ))}

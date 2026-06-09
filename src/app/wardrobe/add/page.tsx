@@ -8,7 +8,7 @@ import { CATEGORY_LABELS, STYLE_LABELS, SEASON_LABELS } from '@/lib/constants'
 
 const CATEGORIES: Category[] = ['top', 'bottom', 'outer', 'shoes', 'accessory']
 const STYLES: Style[] = ['casual', 'minimal', 'street', 'sporty', 'formal', 'vintage', 'chic', 'girly', 'boyish', 'classic', 'romantic', 'preppy']
-const SEASONS: Season[] = ['summer', 'spring_autumn', 'winter']
+const SEASONS: Season[] = ['spring', 'summer', 'autumn', 'winter']
 
 export default function AddWardrobePage() {
   const router = useRouter()
@@ -37,7 +37,11 @@ export default function AddWardrobePage() {
     if (!res.ok) {
       setError(data.error ?? '분석에 실패했습니다')
     } else {
-      setAnalysis(data)
+      setAnalysis({
+        ...data,
+        style: Array.isArray(data.style) ? data.style : [data.style],
+        season: Array.isArray(data.season) ? data.season : [data.season],
+      })
     }
     setAnalyzing(false)
   }
@@ -62,13 +66,13 @@ export default function AddWardrobePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <header className="sticky top-0 z-10 bg-white border-b-2 border-black px-12 py-0 flex items-center">
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
+      <header className="flex-shrink-0 bg-white border-b-2 border-black px-12 py-0 flex items-center">
         <button onClick={() => router.back()} className="text-black font-bold text-2xl py-5 pr-6 border-r-2 border-gray-200 mr-6">←</button>
         <h1 className="font-black text-black text-xl">옷 등록</h1>
       </header>
 
-      <main className="flex-1 px-12 py-10">
+      <main className="flex-1 overflow-y-auto px-12 py-10">
         <input
           ref={inputRef}
           type="file"
@@ -173,14 +177,18 @@ export default function AddWardrobePage() {
                   </div>
 
                   <div>
-                    <label className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-3 block">계절</label>
+                    <label className="text-xs font-extrabold text-[#333333] tracking-widest uppercase mb-3 block">계절 <span className="text-accent font-normal normal-case tracking-normal">(중복 선택 가능)</span></label>
                     <div className="flex flex-wrap gap-2">
                       {SEASONS.map(s => (
                         <button
                           key={s}
-                          onClick={() => setAnalysis({ ...analysis, season: s })}
+                          onClick={() => {
+                            const cur = analysis.season as Season[]
+                            const next = cur.includes(s) ? cur.filter(x => x !== s) : [...cur, s]
+                            if (next.length > 0) setAnalysis({ ...analysis, season: next })
+                          }}
                           className={`px-4 py-2 rounded text-sm font-bold border-2 transition-colors
-                            ${analysis.season === s
+                            ${(analysis.season as Season[]).includes(s)
                               ? 'bg-accent text-white border-accent'
                               : 'bg-white text-black border-gray-200 hover:border-accent'
                             }`}

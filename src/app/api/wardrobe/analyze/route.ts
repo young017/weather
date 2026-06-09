@@ -40,11 +40,12 @@ export async function POST(request: NextRequest) {
   "colors": ["주요색상1", "주요색상2"],
   "style": ["casual", "minimal"],
   "material": "소재명 또는 null",
-  "season": "summer|spring_autumn|winter",
+  "season": ["spring", "summer"],
   "description": "한 줄 설명 (예: 네이비 오버핏 트렌치코트)"
 }
 
-style은 1~3개 배열로 반환. 허용값: casual|minimal|street|sporty|formal|vintage|chic|girly|boyish|classic|romantic|preppy`,
+style은 1~3개 배열로 반환. 허용값: casual|minimal|street|sporty|formal|vintage|chic|girly|boyish|classic|romantic|preppy
+season은 1개 이상 배열로 반환. 허용값: spring|summer|autumn|winter (사계절 다 입을 수 있으면 4개 모두 포함)`,
           },
         ],
       },

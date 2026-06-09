@@ -16,10 +16,13 @@ const client = new Anthropic()
 
 function filterByWeather(items: WardrobeItem[], feelsLike: number): WardrobeItem[] {
   let allowed: Season[]
-  if (feelsLike >= 23)      allowed = ['summer']
-  else if (feelsLike >= 10) allowed = ['spring_autumn']
-  else                      allowed = ['winter']
-  return items.filter(item => allowed.includes(item.season))
+  if (feelsLike >= 23)      allowed = ['summer', 'all_season']
+  else if (feelsLike >= 10) allowed = ['spring', 'autumn', 'all_season']
+  else                      allowed = ['winter', 'all_season']
+  return items.filter(item => {
+    const seasons = Array.isArray(item.season) ? item.season : [item.season as unknown as Season]
+    return seasons.some(s => (allowed as string[]).includes(s))
+  })
 }
 
 function filterByStyle(items: WardrobeItem[], activity: Activity): WardrobeItem[] {
@@ -120,7 +123,7 @@ export async function POST(request: NextRequest) {
 
   const wardrobeText = topItems
     .map((item, i) =>
-      `${i + 1}. [${item.category}] ${item.colors.join('+')} | ${Array.isArray(item.style) ? item.style.join('+') : item.style} | ${item.season}${item.description ? ` | ${item.description}` : ''}`
+      `${i + 1}. [${item.category}] ${item.colors.join('+')} | ${Array.isArray(item.style) ? item.style.join('+') : item.style} | ${Array.isArray(item.season) ? item.season.join('+') : item.season}${item.description ? ` | ${item.description}` : ''}`
     )
     .join('\n')
 
