@@ -68,7 +68,6 @@ function OutfitRow({
 }
 
 const OUTFIT_KEYS = ['top', 'bottom', 'outer', 'shoes'] as const
-type OutfitKey = typeof OUTFIT_KEYS[number]
 
 function ResultContent() {
   const router = useRouter()
@@ -89,7 +88,7 @@ function ResultContent() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!activity || (!lat && !lon && !city)) {
+    if (!activity || (!lat && !lon && !city && !isManual)) {
       router.replace('/')
       return
     }
