@@ -15,12 +15,13 @@ const CATEGORY_MISSING_MSG: Record<Category, string> = {
 }
 
 const CATEGORY_NO_MATCH_MSG: Record<Category, string> = {
-  top:       '오늘 활동에 맞는 상의를 찾지 못했어요',
-  bottom:    '오늘 활동에 맞는 하의를 찾지 못했어요',
+  top:       '오늘 활동에 맞는 상의를 찾지 못했어요 🔍',
+  bottom:    '오늘 활동에 맞는 하의를 찾지 못했어요 🔍',
   outer:     '오늘은 아우터 없이도 충분해요 🙆',
-  shoes:     '오늘 활동에 맞는 신발을 찾지 못했어요',
+  shoes:     '오늘 활동에 맞는 신발을 찾지 못했어요 🔍',
   accessory: '오늘은 없어도 완성된 코디예요 ✨',
 }
+
 
 const CATEGORY_EMOJI: Record<Category, string> = {
   top: '👕', bottom: '👖', outer: '🧥', shoes: '👟', accessory: '💍',
