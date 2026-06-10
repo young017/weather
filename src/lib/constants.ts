@@ -227,7 +227,12 @@ export function buildWeatherGuide(feelsLike: number, weatherCondition: string, w
   const isRain = cond === 'rain' || cond === 'drizzle' || cond === 'thunderstorm'
   const isSnow = cond === 'snow'
   const isWindy = windSpeed >= 8
+  const isClear = cond === 'clear'
 
+  if (isClear) {
+    lines.push('\n[맑음 조건 — 추가 반영]')
+    lines.push('- 액세서리: 우산은 절대 추천하지 않음')
+  }
   if (isRain) {
     lines.push('\n[비 조건 — 추가 반영]')
     lines.push('- 신발: 방수 스니커즈, 레인부츠 우선')
