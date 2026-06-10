@@ -93,7 +93,7 @@ export const ACTIVITY_ALLOWED_STYLES: Record<Activity, Style[]> = {
   office:   ['formal', 'minimal', 'classic', 'preppy'],
   daily:    ['casual', 'street', 'minimal', 'vintage', 'boyish', 'chic', 'classic', 'preppy', 'romantic', 'girly'],
   active:   ['sporty'],
-  date:     ['romantic', 'girly', 'chic', 'minimal', 'casual'],
+  date:     ['romantic', 'boyish', 'girly', 'chic', 'minimal', 'casual'],
   nightout: ['romantic', 'chic', 'street', 'girly', 'formal'],
 }
 
