@@ -61,6 +61,17 @@ function sortByPersonalColor(items: WardrobeItem[], personalColor: PersonalColor
   })
 }
 
+function sortByDislikedPenalty(items: WardrobeItem[], dislikedStyles: string[]): WardrobeItem[] {
+  if (dislikedStyles.length === 0) return items
+  return [...items].sort((a, b) => {
+    const aStyles = Array.isArray(a.style) ? a.style as string[] : [a.style as string]
+    const bStyles = Array.isArray(b.style) ? b.style as string[] : [b.style as string]
+    const aDisliked = aStyles.filter(s => dislikedStyles.includes(s)).length
+    const bDisliked = bStyles.filter(s => dislikedStyles.includes(s)).length
+    return aDisliked - bDisliked
+  })
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -109,9 +120,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '현재 날씨에 맞는 옷이 부족합니다.' }, { status: 400 })
   }
 
-  // 3: sort by style priority then personal color
+  const likedStyles: string[] = profile.liked_styles ?? []
+  const dislikedStyles: string[] = profile.disliked_styles ?? []
+
+  // 3: sort by style priority → personal color → disliked penalty
   const prioritized = sortByStylePriority(styleFiltered, activity)
-  const sorted = sortByPersonalColor(prioritized, profile.personal_color as PersonalColor)
+  const colorSorted = sortByPersonalColor(prioritized, profile.personal_color as PersonalColor)
+  const sorted = sortByDislikedPenalty(colorSorted, dislikedStyles)
 
   // 4: filter to selected categories (top 20 for Claude)
   const topItems = sorted
@@ -135,8 +150,6 @@ export async function POST(request: NextRequest) {
   }
 
   const personalColorLabel = `${PERSONAL_COLOR_LABELS[profile.personal_color as PersonalColor]} (${PERSONAL_COLOR_COLORS[profile.personal_color as PersonalColor].slice(0, 4).join(', ')} 계열)`
-  const likedStyles: string[] = profile.liked_styles ?? []
-  const dislikedStyles: string[] = profile.disliked_styles ?? []
 
   const wardrobeText = topItems
     .map((item, i) =>
