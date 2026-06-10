@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import type { Recommendation, WeatherData, Activity, Category, WardrobeItem } from '@/types'
 import { ACTIVITY_LABELS, CATEGORY_LABELS } from '@/lib/constants'
+import { TopNav } from '@/components/TopNav'
 
 const CATEGORY_MISSING_MSG: Record<Category, string> = {
   top:       '상의부터 채워볼까요 👕',
@@ -199,25 +200,18 @@ function ResultContent() {
 
   return (
     <div className="min-h-screen bg-[#f8f8f8] flex flex-col">
-      <header className="sticky top-0 z-10 bg-white border-b-2 border-black px-12 py-0 flex items-center">
-        <button
-          onClick={() => router.push('/')}
-          className="text-black font-bold text-2xl py-5 pr-6 border-r-2 border-gray-200 mr-6"
-        >
-          ←
-        </button>
-        <div className="flex-1">
+      <TopNav />
+
+      <main className="flex-1 px-12 py-8">
+        <div className="mb-6">
           <h1 className="font-black text-black text-xl">오늘의 코디</h1>
           {weather && (
-            <p className="text-sm text-[#333333] font-normal">
+            <p className="text-sm text-[#333333] font-normal mt-1">
               {weather.city} · {weather.temp}°C · {weather.weather_desc}
               {activity ? ` · ${ACTIVITY_LABELS[activity]}` : ''}
             </p>
           )}
         </div>
-      </header>
-
-      <main className="flex-1 px-12 py-8">
         <div className="grid grid-cols-2 gap-6">
 
           {/* Left: outfit list */}
