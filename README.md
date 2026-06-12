@@ -1,6 +1,7 @@
 # 🌤️ 몇 도야? (myeotdoya) — 코드 이해 문서
 
 **내 옷장에서 오늘의 날씨를, 오늘의 옷차림으로.** 👗
+
 **매일 아침 5분을 당신께 돌려드립니다.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
