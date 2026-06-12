@@ -2,8 +2,6 @@
 
 **내 옷장에서 오늘의 날씨를, 오늘의 옷차림으로.**
 
-**매일 아침 5분을 당신께 돌려드립니다.**
-
 ---
 
 ## 목차
@@ -41,6 +39,7 @@
 ## 2. 시스템 아키텍처
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'lineColor': '#4a9e4a', 'secondaryColor': '#c8f0c8', 'tertiaryColor': '#e6f9e6'}}}%%
 graph TB
     subgraph Client["클라이언트 (Browser)"]
         A[Next.js App Router<br/>React 19]
@@ -83,6 +82,7 @@ graph TB
 ## 3. 데이터베이스 스키마
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'lineColor': '#4a9e4a'}}}%%
 erDiagram
     profiles {
         uuid id PK
@@ -121,6 +121,7 @@ erDiagram
 ## 4. 인증 플로우
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'lineColor': '#4a9e4a', 'actorBkg': '#90EE90', 'actorBorder': '#4a9e4a'}}}%%
 sequenceDiagram
     actor User as 사용자
     participant App as Next.js
@@ -148,6 +149,7 @@ sequenceDiagram
 ## 5. 온보딩 플로우
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'lineColor': '#4a9e4a'}}}%%
 stateDiagram-v2
     [*] --> Intro : 최초 로그인
     Intro --> Gender : 다음
@@ -172,6 +174,7 @@ stateDiagram-v2
 ## 6. 추천 파이프라인
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'lineColor': '#4a9e4a'}}}%%
 flowchart TD
     A([추천 요청]) --> B[날씨 정보 수집\nOpenWeather API]
     B --> C[사용자 프로필 조회\nSupabase profiles]
