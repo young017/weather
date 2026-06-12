@@ -48,9 +48,9 @@ graph TB
     end
 
     subgraph API["API Routes (Next.js)"]
-        D[/api/recommend]
-        E[/api/analyze-clothing]
-        F[/api/weather]
+        D["/api/recommend"]
+        E["/api/analyze-clothing"]
+        F["/api/weather"]
     end
 
     subgraph External["외부 서비스"]
