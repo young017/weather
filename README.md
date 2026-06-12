@@ -1,7 +1,8 @@
 # 🌤️ 몇 도야? (myeotdoya)
 
-**내 옷장에서 오늘의 날씨를, 오늘의 옷차림으로.**  
-매일 아침 5분을 당신께 돌려드립니다.
+**내 옷장에서 오늘의 날씨를, 오늘의 옷차림으로.**
+
+**매일 아침 5분을 당신께 돌려드립니다.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.3.3-black?logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
