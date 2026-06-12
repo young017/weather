@@ -10,11 +10,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-2.50-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Claude AI](https://img.shields.io/badge/Claude-Sonnet_4.6-D97706?logo=anthropic&logoColor=white)](https://anthropic.com/)
 
-*작성일: 2026-06-10*
 
-</div>
-
----
 
 ## 📋 목차
 
@@ -673,9 +669,3 @@ URL에 담기 어려운 날씨 객체는 `sessionStorage`를 임시 채널로 �
 ```
 
 ---
-
-<div align="center">
-
-*2026-06-10 기준 코드 분석 문서*
-
-</div>
