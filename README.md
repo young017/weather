@@ -1,6 +1,6 @@
-# 🌤️ 몇 도야? (myeotdoya)
+# 🌤️ 몇 도야? (myeotdoya) — 코드 이해 문서
 
-**내 옷장에서 오늘의 날씨를, 오늘의 옷차림으로.**
+**내 옷장에서 오늘의 날씨를, 오늘의 옷차림으로.** 
 
 **매일 아침 5분을 당신께 돌려드립니다.**
 
@@ -9,6 +9,8 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-2.50-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Claude AI](https://img.shields.io/badge/Claude-Sonnet_4.6-D97706?logo=anthropic&logoColor=white)](https://anthropic.com/)
+
+</div>
 
 ---
 
@@ -121,7 +123,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 # Supabase 익명 키 (공개 가능, RLS로 보호됨)
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 
-# Supabase 서비스 롤 키 (⚠️ 절대 클라이언트에 노출 금지)
+# Supabase 서비스 롤 키
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 # OpenWeather API 키
@@ -130,6 +132,9 @@ OPENWEATHER_API_KEY=abc123...
 # Anthropic API 키 (Claude AI)
 ANTHROPIC_API_KEY=sk-ant-...
 ```
+
+> [!WARNING]
+> `SUPABASE_SERVICE_ROLE_KEY`는 절대 클라이언트 코드에 노출하면 안 됩니다. `NEXT_PUBLIC_` 접두사 없이 서버 전용으로만 사용하세요.
 
 ---
 
@@ -280,7 +285,8 @@ interface Recommendation {
 | 5~8°C | 히트텍, 두꺼운 니트 | 레깅스 | 코트, 가죽자켓 |
 | 4°C 이하 | 히트텍, 기모 상의 | 기모 레깅스 | 패딩, 두꺼운 코트 |
 
-> `buildWeatherGuide(feelsLike, weatherCondition, windSpeed)` — 비/눈/강풍 조건 추가 안내 포함
+> [!TIP]
+> `buildWeatherGuide(feelsLike, weatherCondition, windSpeed)` — 비/눈/강풍 조건 추가 안내가 자동으로 포함됩니다.
 
 ---
 
@@ -345,7 +351,8 @@ step 3: like     → 좋아하는 스타일 최대 3개
 step 4: dislike  → 싫어하는 스타일 최대 3개 → profiles.upsert() → /
 ```
 
-> 좋아요/싫어요는 상호 배타적 — 같은 스타일 중복 선택 불가
+> [!NOTE]
+> 좋아요/싫어요는 상호 배타적 — 같은 스타일을 양쪽에 동시 선택 불가
 
 ---
 
@@ -463,30 +470,19 @@ supabase.from('wardrobe')
 
 ### 전체 파이프라인
 
-```
-옷장 전체 아이템
-      │
-      ▼
-① filterByWeather()       체감 온도 기반 계절 태그 필터
-      │
-      ▼
-② filterByStyle()         활동별 허용 스타일 필터
-  (결과 0개이면 ① 결과로 fallback → usedFallback = true)
-      │
-      ▼
-③ sortByStylePriority()   활동의 대표 스타일 아이템을 상위로
-      │
-      ▼
-④ sortByPersonalColor()   퍼스널 컬러 매칭 색상 아이템을 상위로
-      │
-      ▼
-⑤ 선택 카테고리 필터 + slice(0, 20)
-      │
-      ▼
-⑥ Claude API 호출         JSON으로 인덱스 반환
-      │
-      ▼
-⑦ 인덱스 → WardrobeItem 매핑 (1-based)
+```mermaid
+flowchart TD
+    A[🗂️ 옷장 전체 아이템] --> B["① filterByWeather()\n체감 온도 기반 계절 태그 필터"]
+    B --> C{"스타일 필터\n결과 있음?"}
+    C -- Yes --> D["② filterByStyle()\n활동별 허용 스타일 필터"]
+    C -- No --> E["⚡ Fallback\nusedFallback = true"]
+    D --> F["③ sortByStylePriority()\n활동 대표 스타일 우선 정렬"]
+    E --> F
+    F --> G["④ sortByPersonalColor()\n퍼스널 컬러 매칭 우선 정렬"]
+    G --> H["⑤ 선택 카테고리 필터\n+ slice(0, 20)"]
+    H --> I["⑥ Claude API 호출\nJSON 인덱스 반환"]
+    I --> J["⑦ 인덱스 → WardrobeItem\n1-based 매핑"]
+    J --> K[✅ Recommendation 반환]
 ```
 
 ### ① filterByWeather
@@ -645,6 +641,7 @@ JSON만 출력:
 
 ### 포멀·오피스 여름 예외 처리
 
+> [!NOTE]
 > 격식 자리에서 반바지는 부적절하므로, 체감 23°C 이상이어도 슬랙스 등 봄·가을 아이템을 허용한다.
 
 ### 스타일 필터 Fallback
@@ -669,3 +666,5 @@ URL에 담기 어려운 날씨 객체는 `sessionStorage`를 임시 채널로 �
 ```
 
 ---
+
+</div>
