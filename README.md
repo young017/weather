@@ -57,6 +57,19 @@ graph TB
     A --> K
     A --> I
     A --> J
+
+    classDef client fill:#8EC5FC,stroke:#4A90C2,color:#12344D
+    classDef api    fill:#1E4E79,stroke:#12344D,color:#FFFFFF
+    classDef ext    fill:#FFD166,stroke:#E0A82E,color:#4A3500
+    classDef db     fill:#B8E6D9,stroke:#4FA88F,color:#0F3D32
+    class A,B,C client
+    class D,E,F api
+    class G,H ext
+    class I,J,K db
+    style Client   fill:#EEF6FD,stroke:#4A90C2
+    style API      fill:#E3ECF5,stroke:#1E4E79
+    style External fill:#FFF6DC,stroke:#E0A82E
+    style Supabase fill:#EAF8F3,stroke:#4FA88F
 ```
 
 ## 데이터베이스 스키마
@@ -98,11 +111,17 @@ erDiagram
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'tertiaryColor': '#EEF6FD', 'lineColor': '#4A90C2', 'actorBkg': '#8EC5FC', 'actorBorder': '#4A90C2', 'actorTextColor': '#12344D', 'activationBkgColor': '#D6EBFA', 'activationBorderColor': '#4A90C2', 'loopTextColor': '#12344D', 'noteBkgColor': '#EEF6FD', 'noteBorderColor': '#4A90C2', 'noteTextColor': '#12344D', 'labelBoxBkgColor': '#D6EBFA', 'labelBoxBorderColor': '#4A90C2'}}}%%
 sequenceDiagram
-    actor User as 사용자
-    participant App as Next.js
-    participant Google as Google OAuth
-    participant SB as Supabase Auth
-    participant DB as PostgreSQL
+    box rgb(214,235,250) 클라이언트
+        actor User as 사용자
+        participant App as Next.js
+    end
+    box rgb(255,240,200) 인증
+        participant Google as Google OAuth
+        participant SB as Supabase Auth
+    end
+    box rgb(214,242,234) 데이터
+        participant DB as PostgreSQL
+    end
 
     User->>App: "Google로 로그인" 클릭
     App->>SB: signInWithOAuth({ provider: 'google' })
@@ -138,6 +157,19 @@ stateDiagram-v2
     LikedStyles : 좋아하는 스타일 선택
     DislikedStyles : 싫어하는 스타일 선택
     Complete : 완료 화면
+
+    classDef s1 fill:#EEF6FD,stroke:#4A90C2,color:#12344D
+    classDef s2 fill:#D6EBFA,stroke:#4A90C2,color:#12344D
+    classDef s3 fill:#BBDDF7,stroke:#4A90C2,color:#12344D
+    classDef s4 fill:#8EC5FC,stroke:#4A90C2,color:#12344D
+    classDef s5 fill:#5BA4DE,stroke:#2F6F9F,color:#FFFFFF
+    classDef done fill:#FFD166,stroke:#E0A82E,color:#4A3500
+    class Intro s1
+    class Gender s2
+    class Color s3
+    class LikedStyles s4
+    class DislikedStyles s5
+    class Complete done
 ```
 
 온보딩은 `/onboarding` 단일 페이지에서 `step` 상태(0–5)로 관리됩니다. 각 스텝의 데이터는 로컬 `useState`에 누적되다가 마지막 스텝 완료 시 Supabase `profiles` 테이블에 한 번에 저장됩니다.
@@ -147,19 +179,27 @@ stateDiagram-v2
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'tertiaryColor': '#EEF6FD', 'lineColor': '#4A90C2', 'edgeLabelBackground': '#EEF6FD', 'clusterBkg': '#EEF6FD', 'critBkgColor': '#D6EBFA', 'warningBkgColor': '#D6EBFA', 'nodeBorder': '#4A90C2'}}}%%
 flowchart TD
-    A([추천 요청]) --> B[날씨 정보 수집\nOpenWeather API]
-    B --> C[사용자 프로필 조회\nSupabase profiles]
-    C --> D[옷장 아이템 조회\nSupabase wardrobe\nis_active = true]
-    D --> E{옷장 비어있음?}
-    E -- Yes --> F[옷장 등록 안내 메시지 반환]
-    E -- No --> G[buildWeatherGuide\n날씨 → 의류 조건 문자열 생성]
-    G --> H[프롬프트 조합\n날씨 가이드 + 프로필 + 옷장]
-    H --> I[Claude Sonnet 4.6\n추천 생성]
-    I --> J{응답 파싱 성공?}
-    J -- No --> K[Fallback:\n일반 텍스트 응답 반환]
-    J -- Yes --> L[구조화된 추천 결과 반환\n아이템 IDs + 코디 설명]
-    L --> M([클라이언트 렌더링])
+    A([추천 요청]):::term --> B[날씨 정보 수집\nOpenWeather API]:::fetch
+    B --> C[사용자 프로필 조회\nSupabase profiles]:::fetch
+    C --> D[옷장 아이템 조회\nSupabase wardrobe\nis_active = true]:::fetch
+    D --> E{옷장 비어있음?}:::decide
+    E -- Yes --> F[옷장 등록 안내 메시지 반환]:::out
+    E -- No --> G[buildWeatherGuide\n날씨 → 의류 조건 문자열 생성]:::proc
+    G --> H[프롬프트 조합\n날씨 가이드 + 프로필 + 옷장]:::proc
+    H --> I[Claude Sonnet 4.6\n추천 생성]:::ai
+    I --> J{응답 파싱 성공?}:::decide
+    J -- No --> K[Fallback:\n일반 텍스트 응답 반환]:::warn
+    J -- Yes --> L[구조화된 추천 결과 반환\n아이템 IDs + 코디 설명]:::out
+    L --> M([클라이언트 렌더링]):::term
     K --> M
+
+    classDef term   fill:#12344D,stroke:#12344D,color:#FFFFFF,font-weight:bold
+    classDef fetch  fill:#B8E6D9,stroke:#4FA88F,color:#0F3D32
+    classDef decide fill:#FFD166,stroke:#E0A82E,color:#4A3500
+    classDef proc   fill:#8EC5FC,stroke:#4A90C2,color:#12344D
+    classDef ai     fill:#1E4E79,stroke:#12344D,color:#FFFFFF,font-weight:bold
+    classDef out    fill:#D6EBFA,stroke:#4A90C2,color:#12344D
+    classDef warn   fill:#F8B4A9,stroke:#D9776A,color:#5A1A12
 ```
 
 ## 디렉터리 구조
