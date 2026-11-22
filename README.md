@@ -21,7 +21,7 @@
 ## 시스템 아키텍처
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'primaryTextColor': '#1a3d1a', 'secondaryColor': '#c8f0c8', 'secondaryBorderColor': '#4a9e4a', 'tertiaryColor': '#e6f9e6', 'tertiaryBorderColor': '#4a9e4a', 'lineColor': '#4a9e4a', 'clusterBkg': '#e6f9e6', 'clusterBorder': '#4a9e4a', 'titleColor': '#1a3d1a', 'edgeLabelBackground': '#e6f9e6'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'secondaryBorderColor': '#4A90C2', 'tertiaryColor': '#EEF6FD', 'tertiaryBorderColor': '#4A90C2', 'lineColor': '#4A90C2', 'clusterBkg': '#EEF6FD', 'clusterBorder': '#4A90C2', 'titleColor': '#12344D', 'edgeLabelBackground': '#EEF6FD'}}}%%
 graph TB
     subgraph Client["클라이언트 (Browser)"]
         A[Next.js App Router<br/>React 19]
@@ -62,7 +62,7 @@ graph TB
 ## 데이터베이스 스키마
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'primaryTextColor': '#1a3d1a', 'secondaryColor': '#c8f0c8', 'tertiaryColor': '#e6f9e6', 'lineColor': '#4a9e4a', 'attributeBackgroundColorEven': '#c8f0c8', 'attributeBackgroundColorOdd': '#e6f9e6'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'tertiaryColor': '#EEF6FD', 'lineColor': '#4A90C2', 'attributeBackgroundColorEven': '#D6EBFA', 'attributeBackgroundColorOdd': '#EEF6FD'}}}%%
 erDiagram
     profiles {
         uuid id PK
@@ -96,7 +96,7 @@ erDiagram
 ## 인증 플로우
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'primaryTextColor': '#1a3d1a', 'secondaryColor': '#c8f0c8', 'tertiaryColor': '#e6f9e6', 'lineColor': '#4a9e4a', 'actorBkg': '#90EE90', 'actorBorder': '#4a9e4a', 'actorTextColor': '#1a3d1a', 'activationBkgColor': '#c8f0c8', 'activationBorderColor': '#4a9e4a', 'loopTextColor': '#1a3d1a', 'noteBkgColor': '#e6f9e6', 'noteBorderColor': '#4a9e4a', 'noteTextColor': '#1a3d1a', 'labelBoxBkgColor': '#c8f0c8', 'labelBoxBorderColor': '#4a9e4a'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'tertiaryColor': '#EEF6FD', 'lineColor': '#4A90C2', 'actorBkg': '#8EC5FC', 'actorBorder': '#4A90C2', 'actorTextColor': '#12344D', 'activationBkgColor': '#D6EBFA', 'activationBorderColor': '#4A90C2', 'loopTextColor': '#12344D', 'noteBkgColor': '#EEF6FD', 'noteBorderColor': '#4A90C2', 'noteTextColor': '#12344D', 'labelBoxBkgColor': '#D6EBFA', 'labelBoxBorderColor': '#4A90C2'}}}%%
 sequenceDiagram
     actor User as 사용자
     participant App as Next.js
@@ -122,7 +122,7 @@ sequenceDiagram
 ## 온보딩 플로우
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'primaryTextColor': '#1a3d1a', 'secondaryColor': '#c8f0c8', 'tertiaryColor': '#e6f9e6', 'lineColor': '#4a9e4a', 'transitionColor': '#4a9e4a'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'tertiaryColor': '#EEF6FD', 'lineColor': '#4A90C2', 'transitionColor': '#4A90C2'}}}%%
 stateDiagram-v2
     [*] --> Intro : 최초 로그인
     Intro --> Gender : 다음
@@ -145,7 +145,7 @@ stateDiagram-v2
 ## 추천 파이프라인
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#90EE90', 'primaryBorderColor': '#4a9e4a', 'primaryTextColor': '#1a3d1a', 'secondaryColor': '#c8f0c8', 'tertiaryColor': '#e6f9e6', 'lineColor': '#4a9e4a', 'edgeLabelBackground': '#e6f9e6', 'clusterBkg': '#e6f9e6', 'critBkgColor': '#c8f0c8', 'warningBkgColor': '#c8f0c8', 'nodeBorder': '#4a9e4a'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#8EC5FC', 'primaryBorderColor': '#4A90C2', 'primaryTextColor': '#12344D', 'secondaryColor': '#D6EBFA', 'tertiaryColor': '#EEF6FD', 'lineColor': '#4A90C2', 'edgeLabelBackground': '#EEF6FD', 'clusterBkg': '#EEF6FD', 'critBkgColor': '#D6EBFA', 'warningBkgColor': '#D6EBFA', 'nodeBorder': '#4A90C2'}}}%%
 flowchart TD
     A([추천 요청]) --> B[날씨 정보 수집\nOpenWeather API]
     B --> C[사용자 프로필 조회\nSupabase profiles]
